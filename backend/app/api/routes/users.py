@@ -75,7 +75,7 @@ def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
         )
     return user
 
-
+'''
 @router.patch("/me", response_model=UserOut)
 def update_user_me(
     *, session: SessionDep, user_in: UserUpdateMe, current_user: CurrentUser
@@ -124,7 +124,7 @@ def read_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
     Get current user.
     """
     return current_user
-
+'''
 
 @router.post("/open", response_model=UserOut)
 def create_user_open(session: SessionDep, user_in: UserCreateOpen) -> Any:
@@ -146,15 +146,16 @@ def create_user_open(session: SessionDep, user_in: UserCreateOpen) -> Any:
     user = crud.user.create_user(session=session, user_create=user_create)
     return user
 
-
+'''
 @router.get("/{user_id}", response_model=UserOut)
 def read_user_by_id(
-    user_id: int, session: SessionDep, current_user: CurrentUser
+    user_id: int, session: SessionDep
 ) -> Any:
     """
     Get a specific user by id.
     """
     user = session.get(User, user_id)
+
     if user == current_user:
         return user
     if not current_user.is_superuser:
@@ -219,3 +220,4 @@ def delete_user(
     session.delete(user)
     session.commit()
     return Message(message="User deleted successfully")
+'''
