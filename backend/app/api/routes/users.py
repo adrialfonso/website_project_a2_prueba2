@@ -146,16 +146,29 @@ def create_user_open(session: SessionDep, user_in: UserCreateOpen) -> Any:
     user = crud.user.create_user(session=session, user_create=user_create)
     return user
 
-'''
-@router.get("/{user_id}", response_model=UserOut)
-def read_user_by_id(
-    user_id: int, session: SessionDep
-) -> Any:
+@router.get("/by-email", response_model=UserOut)
+def read_user_by_email(*, session: SessionDep, email: str) -> Any:
+    """
+    Get a user by email
+    """
+    user = crud.user.get_user_by_email(session=session, email=email)
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found with the provided email",
+        )
+
+    return user
+
+@router.get("/by-id", response_model=UserOut)
+def read_user_by_id(user_id: int, session: SessionDep) -> Any:
     """
     Get a specific user by id.
     """
     user = session.get(User, user_id)
 
+    '''
     if user == current_user:
         return user
     if not current_user.is_superuser:
@@ -163,9 +176,17 @@ def read_user_by_id(
             status_code=403,
             detail="The user doesn't have enough privileges",
         )
+    '''
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found with the provided id",
+        )
+
     return user
 
-
+'''
 @router.patch(
     "/{user_id}",
     dependencies=[Depends(get_current_active_superuser)],
