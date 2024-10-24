@@ -181,7 +181,6 @@ export default {
           this.token = res.data.access_token
           localStorage.setItem('access_token', this.token)
           this.$router.push({ path: '/', query: { username: this.username, logged: this.logged } })
-          /* this.setIsLogged(true) */
         })
         .catch((error) => {
           console.error(error)
