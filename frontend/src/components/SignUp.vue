@@ -146,7 +146,7 @@
   </div>
 </template>
 <script>
-// import AuthService from '../services/AuthService' // Service for user registration and login
+import AuthService from '../services/AuthService' // Service for user registration and login
 
 export default {
   name: 'SignUp',
@@ -174,11 +174,23 @@ export default {
     }
   },
   methods: {
+    login_user () {
+      AuthService.login(this.username, this.password)
+        .then(res => {
+          this.logged = true
+          this.token = res.data.access_token
+          localStorage.setItem('access_token', this.token)
+          this.$router.push({ path: '/', query: { username: this.username, logged: this.logged } })
+          /* this.setIsLogged(true) */
+        })
+        .catch((error) => {
+          console.error(error)
+          alert('Username or Password incorrect')
+        })
+    },
     register_user (event) {
       let fullName = this.name + this.lastname
-      console.log(fullName)
       // Calls the register method from AuthService
-      /*
       AuthService.register(this.username, this.password, fullName)
         .then(res => {
           this.login_user()
@@ -191,8 +203,6 @@ export default {
             alert('An error occurred during registration')
           }
         })
-
-       */
     },
     clearStyles (nameElement) {
       let inputElement = document.getElementById(nameElement)
