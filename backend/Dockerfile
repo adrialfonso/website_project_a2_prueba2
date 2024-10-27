@@ -11,6 +11,7 @@ FROM tiangolo/uvicorn-gunicorn-fastapi:python3.11
 COPY --from=requirements-stage /tmp/requirements.txt /app/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+RUN pip install --no-cache-dir mysql-connector-python
 
 COPY ./app /app/app/
 
