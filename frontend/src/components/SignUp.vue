@@ -18,7 +18,7 @@
                     <div class="col-md-6 mb-4">
 
                       <div class="form-floating">
-                        <input type="text" class="form-control" id="firstName" placeholder="name"
+                        <input type="text" class="form-control first-letter-upper-case" id="firstName" placeholder="name"
                                v-model="name"
                                @input="clearStyles('firstName')"
                                maxlength="50"/>
@@ -32,7 +32,7 @@
                     <div class="col-md-6 mb-4">
 
                       <div class="form-floating">
-                        <input type="text" class="form-control" id="lastName" placeholder="lastname"
+                        <input type="text" class="form-control first-letter-upper-case" id="lastName" placeholder="lastname"
                                v-model="lastname"
                                @input="clearStyles('lastName')"
                                maxlength="120"/>
@@ -123,6 +123,8 @@
                     </div>
                   </div>
 
+                  <div id="errorMessage" class="error-message-box text-error" v-if="errorMessage">{{ errorMessage }}</div>
+
                   <div class="mt-4 pt-2">
                     <input class="btn btn-primary btn-lg w-100 gradient-custom"
                            @click="sumbitData" type="submit" value="Sign up" />
@@ -160,7 +162,8 @@ export default {
       confirmPassword: null,
       token: null,
       isValidPassword: false,
-      isValidConfirmPassword: false
+      isValidConfirmPassword: false,
+      errorMessage: false
     }
   },
   watch: {
@@ -184,7 +187,7 @@ export default {
         })
         .catch((error) => {
           console.error(error)
-          alert('Username or Password incorrect')
+          this.errorMessage = 'Username or Password incorrect'
         })
     },
     register_user (event) {
@@ -197,9 +200,9 @@ export default {
         .catch((error) => {
           console.error(error)
           if (error.response && error.response.status === 400) {
-            alert('The user already exists')
+            this.errorMessage = 'The user already exists'
           } else {
-            alert('An error occurred during registration')
+            this.errorMessage = 'An error occurred during registration'
           }
         })
     },
@@ -291,6 +294,9 @@ export default {
       return true
     },
     sumbitData () {
+      if (this.errorMessage) {
+        this.errorMessage = false
+      }
       let formArrayValues = [this.name, this.lastname, this.username, this.email, this.password, this.confirmPassword]
       let inputElememtNames = ['firstName', 'lastName', 'userName', 'userMail', 'userPassword', 'userPasswordConfirm']
       let isValid = true
@@ -408,9 +414,18 @@ export default {
     margin-top: 0.25rem;
   }
 
+.error-message-box {
+  background-color: rgba(255, 0, 0, 0.2);
+  border: 0.063rem solid red;
+  color: darkred;
+  padding: 0.625rem;
+  border-radius: 50.313rem;
+  margin-top: 1.25rem;
+}
+
   .red-background{
     background-color: rgba(255, 0, 0, 0.1);
-    border: 1px solid red;
+    border: 0.063rem solid red;
   }
 
   .red-text{
@@ -425,6 +440,10 @@ export default {
 
   .bookhub-logo {
     width: 7rem;
+  }
+
+  .first-letter-upper-case{
+    text-transform:capitalize;
   }
 
 </style>
