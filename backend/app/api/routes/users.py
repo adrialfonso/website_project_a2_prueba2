@@ -32,7 +32,7 @@ import bcrypt
 router = APIRouter()
 
 host = settings.HOST
-user = settings.USER
+user = settings.USERDB
 password = settings.PASSWORD
 database = settings.DATABASE
 
@@ -42,6 +42,7 @@ def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
     Retrieve users.
     """
     try:
+        print("print-", user)
         conexion = mysql.connector.connect(
             host=host,
             user=user,

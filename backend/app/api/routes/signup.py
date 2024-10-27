@@ -9,7 +9,7 @@ from app.core.config import settings
 
 router = APIRouter()
 host = settings.HOST
-user = settings.USER
+user = settings.USERDB
 password = settings.PASSWORD
 database = settings.DATABASE
 

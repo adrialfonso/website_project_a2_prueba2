@@ -160,7 +160,6 @@ export default {
       email: null,
       password: null,
       confirmPassword: null,
-      token: null,
       isValidPassword: false,
       isValidConfirmPassword: false,
       errorMessage: false
@@ -178,11 +177,9 @@ export default {
   },
   methods: {
     login_user () {
-      AuthService.login(this.username, this.password)
+      AuthService.login(this.email, this.password)
         .then(res => {
           this.logged = true
-          this.token = res.data.access_token
-          localStorage.setItem('access_token', this.token)
           this.$router.push({ path: '/', query: { username: this.username, logged: this.logged } })
         })
         .catch((error) => {
@@ -191,16 +188,15 @@ export default {
         })
     },
     register_user (event) {
-      let fullName = this.name + this.lastname
       // Calls the register method from AuthService
-      AuthService.register(this.username, this.password, fullName)
+      AuthService.register(this.email, this.username, this.password, this.name, this.lastname)
         .then(res => {
           this.login_user()
         })
         .catch((error) => {
           console.error(error)
           if (error.response && error.response.status === 400) {
-            this.errorMessage = 'The user already exists'
+            this.setMessage('userMail', 'Invalid email: The user already exists')
           } else {
             this.errorMessage = 'An error occurred during registration'
           }
