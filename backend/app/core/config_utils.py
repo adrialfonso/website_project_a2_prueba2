@@ -125,7 +125,10 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER: str
     FIRST_SUPERUSER_PASSWORD: str
     USERS_OPEN_REGISTRATION: bool = False
-
+    HOST: str = "localhost"
+    USER: str = "username"
+    PASSWORD: str = "password"
+    DATABASE: str = "database"
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":
             message = (
