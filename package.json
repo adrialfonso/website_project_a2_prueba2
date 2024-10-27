@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "axios": "^0.25.0",
+    "vee-validate": "^4.14.3",
+    "vue": "^3.5.12",
+    "yup": "^1.4.0"
+  }
+}
