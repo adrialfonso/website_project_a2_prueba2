@@ -23,7 +23,7 @@ import bcrypt
 
 router = APIRouter()
 host = settings.HOST
-user = settings.USER
+user = settings.USERDB
 password = settings.PASSWORD
 database = settings.DATABASE
 
@@ -70,7 +70,7 @@ def login_user(*, email: str, pswd_input: str) -> Any:
 
             # Crear el objeto UserOut basado en los datos obtenidos si la contraseña es correcta
             user_out = UserOut(
-                id=user_row[0],  # id_user
+                id_user=user_row[0],  # id_user
                 name=user_row[1],  # name
                 surname=user_row[2],  # surname
                 username=user_row[3],  # username
