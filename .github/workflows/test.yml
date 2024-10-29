@@ -75,6 +75,10 @@ jobs:
           PROJECT_NAME: env.APPLICATION_NAME
           FIRST_SUPERUSER: env.ADMIN_USER
           FIRST_SUPERUSER_PASSWORD: env.ADMIN_PASSWORD
+          HOST: env.HOST
+          USER: env.USER
+          PASSWORD: env.PASSWORD
+          DATABASE: env.DATABASE
         run: |
           cd backend
           poetry run alembic upgrade head
