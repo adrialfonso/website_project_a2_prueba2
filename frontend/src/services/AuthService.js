@@ -1,16 +1,17 @@
 import http from '../http-common'
-
 class AuthService {
   login (username, password) {
-    const parameters = 'username=' + username + '&password=' + password
     const config = {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'accept': 'application/json'
+      },
+      params: {
+        email: username,
+        pswd_input: password
       }
     }
-    const path = '/api/v1/login/access-token/'
-
-    return http.post(path, parameters, config)
+    const path = '/api/v1/login'
+    return http.post(path, null, config)
       .then((res) => {
         return res
       })
@@ -18,18 +19,15 @@ class AuthService {
         return Promise.reject(error)
       })
   }
-
-  register (username, password, fullname) {
-    const userData = {'password': password, 'email': username, 'full_name': fullname}
+  register (email, username, password, name, surname) {
+    const userData = {'password': password, 'email': email, 'username': username, 'name': name, 'surname': surname}
     const config = {
       headers: {
         'accept': 'application/json',
         'Content-Type': 'application/json'
       }
     }
-
     const path = '/api/v1/users'
-
     return http.post(path, userData, config)
       .then((res) => {
         return res
@@ -39,5 +37,4 @@ class AuthService {
       })
   }
 }
-
 export default new AuthService()
