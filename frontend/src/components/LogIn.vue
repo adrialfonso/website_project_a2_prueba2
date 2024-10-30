@@ -76,7 +76,6 @@ export default {
     return {
       username: null,
       password: null,
-      token: null,
       errorMessage: ''
     }
   },
@@ -111,9 +110,8 @@ export default {
       if (this.validateInputs()) {
         AuthService.login(this.username, this.password)
           .then(response => {
-            this.token = response.data.access_token
-            localStorage.setItem('access_token', this.token)
-            this.$router.push({path: '/', query: {username: this.username}})
+            this.logged = true
+            this.$router.push({path: '/', query: { username: this.username, logged: this.logged }})
           })
           .catch(error => {
             this.errorMessage = 'Username or password is incorrect'
