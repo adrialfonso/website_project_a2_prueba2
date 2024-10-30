@@ -18,10 +18,10 @@
                     <div class="col-12 mb-4">
                       <div class="form-floating">
                         <input type="text" class="form-control custom-input" id="loginUsername"
-                               placeholder="Username"
+                               placeholder="Email"
                                v-model="username"
                                @input="clearStyles('loginUsername')" />
-                        <label id="loginUsernameLabel" for="loginUsername">Username</label>
+                        <label id="loginUsernameLabel" for="loginUsername">Email</label>
                         <div class="text-start text-error">
                           <div class="invalid-feedback" id="loginUsernameFeedback"></div>
                         </div>
@@ -97,7 +97,7 @@ export default {
       let isValid = true
       this.errorMessage = ''
       if (!this.username) {
-        this.setMessage('loginUsername', "Username can't be empty.")
+        this.setMessage('loginUsername', "Email can't be empty.")
         isValid = false
       }
       if (!this.password) {
@@ -114,7 +114,7 @@ export default {
             this.$router.push({path: '/', query: { username: this.username, logged: this.logged }})
           })
           .catch(error => {
-            this.errorMessage = 'Username or password is incorrect'
+            this.errorMessage = 'Email or password is incorrect'
             console.error(error)
           })
       }
