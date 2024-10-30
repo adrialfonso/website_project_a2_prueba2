@@ -38,15 +38,12 @@ export default {
     initializeFromRoute () {
       this.isLogged = this.$route.query.logged === 'true'
       this.username = this.$route.query.username
-      this.token = this.$route.query.token
       if (this.isLogged === undefined) {
         this.isLogged = false
       }
     },
     async reload () {
-      if (localStorage.access_token) {
-        this.token = localStorage.access_token
-      }
+      /* Function called every time the page is mounted */
     }
   },
   async mounted () {
