@@ -1,4 +1,4 @@
-#  Software Engineering Project: BookHub
+#  Software Engineering Project: ReadHub
 
 ## 1. Project Description  
 Desciption of the Project and Bussiness value
