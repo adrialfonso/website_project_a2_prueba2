@@ -12,7 +12,7 @@
                 </div>
 
                 <h2 class="title mb-4 pb-3 pb-md-0 mb-md-5">Create Your ReadHub Account</h2>
-                <form>
+                <form @submit.prevent="sumbitData">
 
                   <div class="row">
                     <div class="col-md-6 mb-4">
@@ -127,7 +127,7 @@
 
                   <div class="mt-4 pt-2">
                     <input class="btn btn-primary btn-lg w-100 gradient-custom"
-                           @click="sumbitData" type="submit" value="Sign up" />
+                           type="submit" value="Sign up" />
                   </div>
 
                   <p class="text-center text-muted mt-5 mb-0">
