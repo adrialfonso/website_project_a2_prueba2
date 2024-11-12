@@ -60,6 +60,7 @@ Here is how the directory structure look:
 │   ├── /src                     # Source code for the frontend application
 │   │   ├── /assets              # Images, styles, and other assets
 │   │   ├── /components          # Reusable Vue components
+│   │   ├── /views               # Vue views of the application
 │   │   ├── /router              # Vue router configuration
 │   │   ├── /services            # API service calls for the backend
 │   │   ├── App.vue              # Root Vue component
