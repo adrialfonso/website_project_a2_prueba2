@@ -77,7 +77,6 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  /* align-items: start; de mometo nada */
 }
 
 .card-book {
@@ -85,7 +84,6 @@ export default {
   gap: var(--panel-gap);
   flex-direction: row;
   padding-bottom: var(--panel-gap);
-  /* max-width: 750px */
 }
 
 .image-wrap{
@@ -145,11 +143,11 @@ export default {
 .synopsis{
   grid-area: synopsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* Limita a dos líneas */
-  -webkit-box-orient: vertical; /* Orienta el contenido verticalmente */
-  overflow: hidden; /* Oculta el contenido que no cabe */
-  text-overflow: ellipsis; /* Agrega los puntos suspensivos */
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: var(--font-size-xs);
-  text-align: left; /* Alineación horizontal a la izquierda */
+  text-align: left;
 }
 </style>
