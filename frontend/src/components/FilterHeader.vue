@@ -1,7 +1,7 @@
 <template>
   <div class="view-as gradient-custom-header">
 
-      <!-- Toogle View: Grid, List and Compact -->
+      <!-- Toggle View: Grid, List and Compact -->
       <div class="toggle-wrap" v-if="currentTab !== 'book-page'">
         <input type="radio" id="toggle1" name="toggle" class="toggleCheckbox" @click="setView('grid')" :checked="view === 'grid'"/>
         <input type="radio" id="toggle2" name="toggle" class="toggleCheckbox" @click="setView('list')" :checked="view === 'list'"/>
