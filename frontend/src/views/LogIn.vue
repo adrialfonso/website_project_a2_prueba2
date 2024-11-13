@@ -8,7 +8,7 @@
               <div class="card-body p-4 p-md-5">
 
                 <div class="text-center mb-4">
-                  <img src="@/assets/bookhub-black.svg" alt="BookHub Logo" class="bookhub-logo">
+                  <img loading="lazy"  src="@/assets/bookhub-black.svg" alt="BookHub Logo" class="bookhub-logo">
                 </div>
 
                 <h2 class="title mb-4 pb-3 pb-md-0 mb-md-5">ReadHub Account</h2>
@@ -79,6 +79,13 @@ export default {
       errorMessage: ''
     }
   },
+  mounted () {
+    const username = this.$store.getters.username
+
+    if (username) {
+      this.$router.push('/')
+    }
+  },
   methods: {
     clearStyles (field) {
       const inputElement = document.getElementById(field)
@@ -106,12 +113,12 @@ export default {
       }
       return isValid
     },
-    submitLogin () {
+    async submitLogin () {
       if (this.validateInputs()) {
         AuthService.login(this.username, this.password)
           .then(response => {
-            this.logged = true
-            this.$router.push({path: '/', query: { username: this.username, logged: this.logged }})
+            this.$store.dispatch('setUser', { username: this.username })
+            this.$router.push({ name: 'HomePage' })
           })
           .catch(error => {
             this.errorMessage = 'Email or password is incorrect'
@@ -124,9 +131,6 @@ export default {
 </script>
 
 <style scoped>
-.gradient-custom {
-  background: linear-gradient(135deg, #6f86d6, #48c6ef);
-}
 
 .title {
   font-weight: 900;
@@ -146,7 +150,7 @@ export default {
 }
 
 .text-link {
-  color: #5777F5FF;
+  color: var(--blue-link);
   font-weight: bold;
 }
 
