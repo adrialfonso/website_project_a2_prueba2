@@ -43,3 +43,4 @@ class BookOut(BookBase):
 class BooksOut(SQLModel):
     data: list[BookOut]
     count: int
+
