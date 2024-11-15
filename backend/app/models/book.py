@@ -1,6 +1,7 @@
 """ Book models """
 from sqlmodel import Field, SQLModel
 from typing import Optional
+from .base import SQLModel
 
 # Shared properties
 class BookBase(SQLModel):
@@ -17,7 +18,7 @@ class BookBase(SQLModel):
 
 # Database model, table inferred from class name
 class Book(BookBase, table=True):
-    id_book: Optional[int] = Field(default=None, primary_key=True)
+    id_book: int | None = Field(default=None, primary_key=True)
 
 # Properties to receive via API on creation
 class BookCreate(BookBase):
