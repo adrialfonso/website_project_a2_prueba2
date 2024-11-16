@@ -24,6 +24,76 @@ password = settings.PASSWORD
 database = settings.DATABASE
 
 
+@router.get("/{keyword}", response_model=BooksOut)
+def read_top5_matched_books(keyword: str) -> Any:
+    try:
+        # Conexión a la base de datos
+        conexion = mysql.connector.connect(
+            host=host,
+            user=user,
+            password=password,
+            database=database,
+            port=3306
+        )
+
+        if conexion.is_connected():
+            print("Conexión exitosa a la base de datos")
+            cursor = conexion.cursor()
+
+            # Crear la consulta de búsqueda
+            query = """
+                   SELECT IdBook, Title, Authors, Synopsis, BuyLink, Genres, Rating, Editorial, Comments, PublicationDate, Image
+                   FROM Books
+                   WHERE Title LIKE %s OR Authors LIKE %s
+                   ORDER BY Rating DESC
+                   LIMIT 5
+               """
+
+            # Preparar el parámetro de búsqueda con el carácter comodín
+            search_param = f"%{keyword}%"
+
+            # Ejecutar la consulta
+            cursor.execute(query, (search_param, search_param))
+
+            # Obtener los resultados
+            resultados = cursor.fetchall()
+
+            # Contar el total de libros
+            query_count = "SELECT COUNT(1) FROM Books"
+            cursor.execute(query_count)
+            count = cursor.fetchone()[0]
+
+            books_data = [
+                BookOut(
+                    id_book=row[0],
+                    title=row[1],
+                    authors=row[2],
+                    synopsis=row[3],
+                    buy_link=row[4],
+                    genres=row[5],
+                    rating=row[6],
+                    editorial=row[7],
+                    comments=row[8],
+                    publication_date=row[9].isoformat() if row[9] else None,  # Convertir a string
+                    image=row[10]
+                ) for row in resultados
+            ]
+
+            return BooksOut(data=books_data, count=count)
+
+
+
+    except mysql.connector.Error as err:
+        print(f"Error al conectar a MySQL: {e}")
+        raise HTTPException(status_code=500, detail="Error connecting to the database.")
+
+    finally:
+        if conexion.is_connected():
+            cursor.close()
+            conexion.close()
+            print("Conexión cerrada")
+
+
 @router.get("/", response_model=BooksOut)
 def read_books(skip: int = 0, limit: int = 100) -> Any:
     """
