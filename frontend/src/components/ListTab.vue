@@ -124,12 +124,14 @@ export default {
   font-size: var(--font-size-xs);
   gap: var(--panel-gap);
   margin-bottom: calc(var(--panel-gap) /2);
+  font-weight: 700;
 }
 
 .text-card{
   grid-area: title;
   display: flex;
   font-size: var(--font-size-medium);
+  font-weight: 700;
 }
 
 .author{

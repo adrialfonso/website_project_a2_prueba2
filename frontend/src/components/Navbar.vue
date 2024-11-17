@@ -39,7 +39,13 @@
 
               <div class="input-group-wrap">
                 <input class="input-search" type="search" spellcheck="false" placeholder="Search something"
-                       value="" tabindex="0" maxlength="200" v-model="textInput">
+                       value="" tabindex="0" maxlength="200" v-model="textInput" @input="filterSuggestions">
+
+                <!-- Suggestions -->
+                <suggestions :filteredSuggestionsUsers="filteredSuggestionsUsers"
+                              :filteredSuggestionsBooks="filteredSuggestionsBooks"
+                             :errorMessages="errorMessages"
+                             @suggestion-selected="selectSuggestion"/>
               </div>
 
               <div class="genre-line-wrap">
@@ -101,6 +107,8 @@
 </template>
 
 <script>
+import Suggestions from '@/components/Suggestions'
+
 const PageEnum = Object.freeze({
   HOME: 'default',
   SEARCH: 'book-page',
@@ -110,13 +118,24 @@ const PageEnum = Object.freeze({
 
 export default {
   name: 'Navbar',
+  components: { 'suggestions': Suggestions },
   props: {
     actualPage: PageEnum
   },
   data () {
     return {
       textInput: '',
-      type: ''
+      type: '',
+      suggestions: [
+        { id: 1, name: 'Juan Pérez', type: 'user' },
+        { id: 2, name: 'JAna Gómez', type: 'user' },
+        { id: 3, name: 'JEl Quijote', type: 'book' },
+        { id: 4, name: 'JCien años de soledad', type: 'book' },
+        { id: 5, name: 'JMiguel de Cervantes', type: 'author' },
+        { id: 6, name: 'JGabriel García Márquez', type: 'author' } ],
+      filteredSuggestionsUsers: [],
+      filteredSuggestionsBooks: [],
+      errorMessages: []
     }
   },
   watch: {
@@ -161,10 +180,45 @@ export default {
     clearRoute () {
       this.textInput = ''
       if ((this.$route.query.search || this.$route.query.category) && this.$route.query.type) {
-        this.$router.push({query: {}}).catch(() => {
+        this.$router.replace({query: {}}).catch(() => {
           console.error('The router url is the same')
         })
       }
+    },
+    filterSuggestions () {
+      this.errorMessages = []
+
+      if (this.textInput.trim()) {
+        if (this.hasSpecialCharacters(this.textInput.trim())) {
+          this.errorMessages.push({ name: 'No special characters allowed', type: 'error' })
+          this.filteredSuggestionsUsers = []
+          this.filteredSuggestionsBooks = []
+          return
+        }
+
+        const input = this.textInput.trim().toLowerCase()
+
+        this.filteredSuggestionsUsers = this.suggestions
+          .filter(({ type, name }) => type === 'user' && name.toLowerCase().includes(input))
+
+        this.filteredSuggestionsBooks = this.suggestions
+          .filter(({ type, name }) => type === 'book' && name.toLowerCase().includes(input))
+
+        if (!this.filteredSuggestionsUsers.length && !this.filteredSuggestionsBooks.length) {
+          this.errorMessages.push({ name: 'No match found', type: 'error' })
+        }
+      } else {
+        this.filteredSuggestionsUsers = []
+        this.filteredSuggestionsBooks = []
+      }
+    },
+    selectSuggestion (data) {
+      this.textInput = (data[0])
+      this.type = data[1]
+      this.filteredSuggestionsUsers = []
+      this.filteredSuggestionsBooks = []
+
+      this.startSearch()
     },
     startSearch () {
       if (this.textInput.trim() !== '') {
@@ -183,13 +237,17 @@ export default {
             type: this.type
           }
 
-          this.$router.push({ query: newQuery }).catch(err => {
+          this.$router.replace({ query: newQuery }).catch(err => {
             if (err.name !== 'NavigationDuplicated') {
               console.error('Error replacing the route', err)
             }
           })
         }
       }
+    },
+    hasSpecialCharacters (input) {
+      const specialCharactersRegex = /^[a-zA-ZñÑáéíóúÁÉÍÓÚüçÜ]+( +[a-zA-ZñÑáéíóúÁÉÍÓÚüçÜ]+)*$/
+      return !specialCharactersRegex.test(input)
     }
   }
 }
@@ -343,10 +401,6 @@ export default {
 .search:hover {
   background: var(--half-transparent-background);
   box-shadow: inset 0 0 0.25rem var(--search-color-shadow);
-}
-
-.search-wrap:focus-within {
-  box-shadow: 0 0 1rem var(--half-transparent-main-background);
 }
 
 .genre-line-wrap{
