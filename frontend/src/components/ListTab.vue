@@ -7,7 +7,7 @@
             </div>
             <div class="text-wrap">
               <div class="genres">
-                <a v-for="genre in item.data.genres" :key="genre">
+                <a v-for="genre in item.data.genres" :key="genre" :style="{ color: getGenreColor(genre) }">
                   {{ genre }}
                 </a>
               </div>
@@ -54,6 +54,40 @@ export default {
           }
         })
       }
+    },
+    getGenreColor (genre) {
+      const genreColors = {
+        'Adventure': '#D1CFF8',
+        'American Literature': '#FCC9F8',
+        'Classic': '#FFC3DE',
+        'Coming-of-age': '#FFC7B1',
+        'Drama': '#C1B4E0',
+        'Dystopian': '#B398C7',
+        'Epic': '#00C6C4',
+        'Fantasy': '#D7F4F2',
+        'Fiction': '#1DC198',
+        'French Literature': '#F9F8FF',
+        'Gothic': '#A67DAC',
+        'Gothic Fiction': '#996290',
+        'Greek Literature': '#8B4772',
+        'Historical Fiction': '#D1CFF8',
+        'Horror': '#FCC9F8',
+        'Italian Literature': '#FFC3DE',
+        'Latin American Literature': '#FFC7B1',
+        'Literature': '#C1B4E0',
+        'Magical Realism': '#B398C7',
+        'Mystery': '#00C6C4',
+        'Philosophy': '#D7F4F2',
+        'Poetry': '#1DC198',
+        'Post-apocalyptic Fiction': '#F9F8FF',
+        'Romance': '#A67DAC',
+        'Russian Literature': '#996290',
+        'Science Fiction': '#8B4772',
+        'Spanish Literature': '#D1CFF8',
+        'Thriller': '#FCC9F8',
+        'Young Adult': '#FFC3DE'
+      }
+      return genreColors[genre] || '#d1cff8'
     }
   }
 }
