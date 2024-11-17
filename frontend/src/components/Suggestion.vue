@@ -9,9 +9,8 @@
                 <li class="option" role="option"
                     v-for="suggestion in suggestions"
                     :key="suggestion.name"
-                    @click="handleClick(suggestion)"
                     :class="{ 'disabled-option': !selectSuggestionAvailable }">
-                  <a
+                  <router-link :to="computedHref(suggestion)"
                      class="option-link"
                      :class="{ 'disabled-link': !selectSuggestionAvailable }">
 
@@ -28,7 +27,7 @@
                     <span class="final-label" v-if="selectSuggestionAvailable">
                       Jump to
                     </span>
-                  </a>
+                  </router-link>
                 </li>
 
             </ul>
@@ -48,19 +47,20 @@ export default {
     title: String,
     icon: String,
     isNext: Boolean,
-    selectSuggestion: Function,
     selectSuggestionAvailable: Boolean
   },
   data () {
-    return {
-
-    }
+    return {}
   },
   methods: {
-    handleClick (suggestion) {
-      if (this.selectSuggestionAvailable) {
-        this.selectSuggestion(suggestion.name, suggestion.type)
+    computedHref (suggestion) {
+      const newQuery = {
+        search: suggestion.name,
+        type: suggestion.type
       }
+
+      const queryString = new URLSearchParams(newQuery).toString()
+      return `${this.$route.path}?${queryString}`
     }
   }
 }

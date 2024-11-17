@@ -1,6 +1,6 @@
 <template>
   <div class="options-content">
-        <div v-for="(item, index) in column" :key="index" v-if="item.data" class="btn" @click="startSearch(item)">
+        <router-link v-for="(item, index) in column" :key="index" v-if="item.data" class="btn" :to="startSearch(item)">
           <div class="card-book" >
             <div class="image-wrap">
               <img loading="lazy" src="@/assets/cover.png" class="image" alt="Cover Book">
@@ -22,7 +22,7 @@
               </p>
             </div>
           </div>
-        </div>
+        </router-link>
   </div>
 </template>
 
@@ -34,26 +34,13 @@ export default {
   },
   methods: {
     startSearch (item) {
-      if ((!this.$route.query.search || this.$route.query.search !== item.data.title) ||
-        (!this.$route.query.type || this.$route.query.type !== item.type)) {
-        const currentQuery = { ...this.$route.query }
-
-        delete currentQuery.category
-        delete currentQuery.search
-        delete currentQuery.type
-
-        const newQuery = {
-          ...currentQuery,
-          search: item.data.title,
-          type: item.type
-        }
-
-        this.$router.push({ query: newQuery }).catch(err => {
-          if (err.name !== 'NavigationDuplicated') {
-            console.error('Error replacing the route', err)
-          }
-        })
+      const newQuery = {
+        search: item.data.title,
+        type: item.type
       }
+
+      const queryString = new URLSearchParams(newQuery).toString()
+      return `${this.$route.path}?${queryString}`
     },
     getGenreColor (genre) {
       const genreColors = {

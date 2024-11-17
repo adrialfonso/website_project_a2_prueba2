@@ -12,14 +12,14 @@
 
     <div class="line"/>
 
-    <div v-for="(item, index) in column" :key="index" v-if="item.data" class="btn card-book-wrap" @click="startSearch(item)">
+    <router-link v-for="(item, index) in column" :key="index" v-if="item.data" class="btn card-book-wrap" :to="startSearch(item)">
           <h5 class="book-name left">
             {{ item.data.title }}
           </h5>
           <h4 class="author-name right">
             {{ item.data.authors }}
           </h4>
-    </div>
+    </router-link>
 
   </div>
 </template>
@@ -32,26 +32,13 @@ export default {
   },
   methods: {
     startSearch (item) {
-      if ((!this.$route.query.search || this.$route.query.search !== item.data.title) ||
-        (!this.$route.query.type || this.$route.query.type !== item.type)) {
-        const currentQuery = { ...this.$route.query }
-
-        delete currentQuery.category
-        delete currentQuery.search
-        delete currentQuery.type
-
-        const newQuery = {
-          ...currentQuery,
-          search: item.data.title,
-          type: item.type
-        }
-
-        this.$router.push({ query: newQuery }).catch(err => {
-          if (err.name !== 'NavigationDuplicated') {
-            console.error('Error replacing the route', err)
-          }
-        })
+      const newQuery = {
+        search: item.data.title,
+        type: item.type
       }
+
+      const queryString = new URLSearchParams(newQuery).toString()
+      return `${this.$route.path}?${queryString}`
     }
   }
 }
