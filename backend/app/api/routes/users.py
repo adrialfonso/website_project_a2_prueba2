@@ -36,6 +36,65 @@ user = settings.USERDB
 password = settings.PASSWORD
 database = settings.DATABASE
 
+@router.get("/{keyword}", response_model=UsersOut)
+def read_top5_matched_books(keyword: str) -> Any:
+    try:
+        # Conexión a la base de datos
+        conexion = mysql.connector.connect(
+            host=host,
+            user=user,
+            password=password,
+            database=database,
+            port=3306
+        )
+
+        if conexion.is_connected():
+            print("Conexión exitosa a la base de datos")
+            cursor = conexion.cursor()
+
+            # Crear la consulta de búsqueda
+            query = """
+                SELECT id_user, name, surname, username, email
+                   FROM users
+                   WHERE name LIKE %s OR surname LIKE %s or username LIKE %s
+            """
+
+            # Preparar el parámetro de búsqueda con el carácter comodín
+            search_param = f"%{keyword}%"
+
+            # Ejecutar la consulta
+            cursor.execute(query, (search_param, search_param, search_param))
+
+            # Obtener los resultados
+            resultados = cursor.fetchall()
+
+            # Contar el total de libros
+            query_count = "SELECT COUNT(1) FROM Books"
+            cursor.execute(query_count)
+            count = cursor.fetchone()[0]
+
+            users_data = [
+                UserOut(
+                    id_user=row[0],
+                    name=row[1],
+                    surname=row[2],
+                    username=row[3],
+                    email=row[4]
+                ) for row in resultados
+            ]
+
+            return UsersOut(data=users_data, count=count)
+    except mysql.connector.Error as err:
+        print(f"Error al conectar a MySQL: {err}")
+        raise HTTPException(status_code=500, detail="Error connecting to the database.")
+
+    finally:
+        if conexion.is_connected():
+            cursor.close()
+            conexion.close()
+            print("Conexión cerrada")
+
+
 @router.get("/")
 def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
     """
