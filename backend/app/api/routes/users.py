@@ -37,7 +37,7 @@ password = settings.PASSWORD
 database = settings.DATABASE
 
 @router.get("/")
-def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
+def read_users(skip: int = 0, limit: int = 100) -> Any:
     """
     Retrieve users.
     """

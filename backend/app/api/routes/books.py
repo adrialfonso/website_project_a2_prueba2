@@ -24,6 +24,76 @@ password = settings.PASSWORD
 database = settings.DATABASE
 
 
+@router.get("/{keyword}", response_model=BooksOut)
+def read_top5_matched_books(keyword: str) -> Any:
+    try:
+        # Conexión a la base de datos
+        conexion = mysql.connector.connect(
+            host=host,
+            user=user,
+            password=password,
+            database=database,
+            port=3306
+        )
+
+        if conexion.is_connected():
+            print("Conexión exitosa a la base de datos")
+            cursor = conexion.cursor()
+
+            # Crear la consulta de búsqueda
+            query = """
+                   SELECT IdBook, Title, Authors, Synopsis, BuyLink, Genres, Rating, Editorial, Comments, PublicationDate, Image
+                   FROM Books
+                   WHERE Title LIKE %s OR Authors LIKE %s
+                   ORDER BY Rating DESC
+                   LIMIT 5
+               """
+
+            # Preparar el parámetro de búsqueda con el carácter comodín
+            search_param = f"%{keyword}%"
+
+            # Ejecutar la consulta
+            cursor.execute(query, (search_param, search_param))
+
+            # Obtener los resultados
+            resultados = cursor.fetchall()
+
+            # Contar el total de libros
+            query_count = "SELECT COUNT(1) FROM Books"
+            cursor.execute(query_count)
+            count = cursor.fetchone()[0]
+
+            books_data = [
+                BookOut(
+                    id_book=row[0],
+                    title=row[1],
+                    authors=row[2],
+                    synopsis=row[3],
+                    buy_link=row[4],
+                    genres=row[5],
+                    rating=row[6],
+                    editorial=row[7],
+                    comments=row[8],
+                    publication_date=row[9].isoformat() if row[9] else None,  # Convertir a string
+                    image=row[10]
+                ) for row in resultados
+            ]
+
+            return BooksOut(data=books_data, count=count)
+
+
+
+    except mysql.connector.Error as err:
+        print(f"Error al conectar a MySQL: {e}")
+        raise HTTPException(status_code=500, detail="Error connecting to the database.")
+
+    finally:
+        if conexion.is_connected():
+            cursor.close()
+            conexion.close()
+            print("Conexión cerrada")
+
+
 @router.get("/", response_model=BooksOut)
 def read_books(skip: int = 0, limit: int = 100) -> Any:
     """
@@ -45,17 +115,18 @@ def read_books(skip: int = 0, limit: int = 100) -> Any:
 
             # Consulta para obtener los libros con paginación
             query_books = """
-                SELECT id_book, title, authors, synopsis, buy_link, genres, rating, editorial, comments, publication_date, image
-                FROM books LIMIT %s OFFSET %s
+                SELECT IdBook as id_book, Title as title, Authors as authors, Synopsis as synopsis, BuyLink as buy_link, 
+                Genres as genres, Rating as rating, Editorial as editorial, Comments as comments, PublicationDate as publication_date, Image as image from Books
+                LIMIT %s OFFSET %s;
             """
             cursor.execute(query_books, (limit, skip))
+            # cursor.execute(query_books)
             filas = cursor.fetchall()
 
             # Contar el total de libros
-            query_count = "SELECT COUNT(1) FROM books"
+            query_count = "SELECT COUNT(1) FROM Books"
             cursor.execute(query_count)
             count = cursor.fetchone()[0]
-
             # Transformar las filas obtenidas en una lista de objetos BookOut
             books_data = [
                 BookOut(
@@ -68,7 +139,7 @@ def read_books(skip: int = 0, limit: int = 100) -> Any:
                     rating=row[6],
                     editorial=row[7],
                     comments=row[8],
-                    publication_date=row[9],
+                    publication_date=row[9].isoformat() if row[9] else None,  # Convertir a string
                     image=row[10]
                 ) for row in filas
             ]
@@ -107,8 +178,9 @@ def read_book(book_id: int) -> Any:
 
             # Consulta para obtener un libro por su ID
             query_book = """
-                SELECT id_book, title, authors, synopsis, buy_link, genres, rating, editorial, comments, publication_date, image
-                FROM books WHERE id_book = %s
+                SELECT IdBook as id_book, Title as title, Authors as authors, Synopsis as synopsis, BuyLink as buy_link, 
+                Genres as genres, Rating as rating, Editorial as editorial, Comments as comments, PublicationDate as publication_date, Image as image from Books
+                WHERE IdBook = %s
             """
             cursor.execute(query_book, (book_id,))
             row = cursor.fetchone()
@@ -127,7 +199,7 @@ def read_book(book_id: int) -> Any:
                 rating=row[6],
                 editorial=row[7],
                 comments=row[8],
-                publication_date=row[9],
+                publication_date=row[9].isoformat() if row[9] else None,  # Convertir a string
                 image=row[10]
             )
 
@@ -173,10 +245,9 @@ def create_book(book_in: BookCreate) -> Any:
                     status_code=400,
                     detail="The book with this title already exists in the system."
                 )
-
             # Insertar el nuevo libro en la base de datos
             query_create_book = """
-                INSERT INTO books (title, authors, synopsis, buy_link, genres, rating, editorial, comments, publication_date, image)
+                INSERT INTO Books (Title, Authors, Synopsis, BuyLink, Genres, Rating, Editorial, Comments, PublicationDate, Image)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             cursor.execute(query_create_book, (
@@ -209,7 +280,7 @@ def create_book(book_in: BookCreate) -> Any:
                 rating=book_in.rating,
                 editorial=book_in.editorial,
                 comments=book_in.comments,
-                publication_date=book_in.publication_date,
+                publication_date=book_in.publication_date.isoformat() if book_in.publication_date else None,
                 image=book_in.image
             )
 
@@ -246,7 +317,7 @@ def update_book(book_id: int, book_in: BookUpdate) -> Any:
             cursor = conexion.cursor()
 
             # Verificar si el libro existe por su ID
-            query_check_book = "SELECT id_book FROM books WHERE id_book = %s"
+            query_check_book = "SELECT IdBook as id_book FROM books WHERE IdBook = %s"
             cursor.execute(query_check_book, (book_id,))
             existing_book = cursor.fetchone()
 
@@ -258,9 +329,9 @@ def update_book(book_id: int, book_in: BookUpdate) -> Any:
 
             # Actualizar el libro
             query_update_book = """
-                UPDATE books SET title = %s, authors = %s, synopsis = %s, buy_link = %s, genres = %s, rating = %s,
-                editorial = %s, comments = %s, publication_date = %s, image = %s
-                WHERE id_book = %s
+                UPDATE books SET Title = %s, Authors = %s, Synopsis = %s, BuyLink = %s, Genres = %s, Rating = %s,
+                Editorial = %s, Comments = %s, PublicationDate = %s, Image = %s
+                WHERE IdBook = %s
             """
             cursor.execute(query_update_book, (
                 book_in.title,
@@ -280,7 +351,12 @@ def update_book(book_id: int, book_in: BookUpdate) -> Any:
             conexion.commit()
 
             # Obtener los datos actualizados
-            query_updated_book = "SELECT id_book, title, authors, synopsis, buy_link, genres, rating, editorial, comments, publication_date, image FROM books WHERE id_book = %s"
+            '''
+            
+                WHERE IdBook = %s
+            '''
+            query_updated_book = """SELECT IdBook as id_book, Title as title, Authors as authors, Synopsis as synopsis, BuyLink as buy_link, 
+                Genres as genres, Rating as rating, Editorial as editorial, Comments as comments, PublicationDate as publication_date, Image as image from Books WHERE IdBook = %s"""
             cursor.execute(query_updated_book, (book_id,))
             row = cursor.fetchone()
 
@@ -295,7 +371,7 @@ def update_book(book_id: int, book_in: BookUpdate) -> Any:
                 rating=row[6],
                 editorial=row[7],
                 comments=row[8],
-                publication_date=row[9],
+                publication_date=row[9].isoformat() if row[9] else None,  # Convertir a string
                 image=row[10]
             )
 
@@ -332,7 +408,7 @@ def delete_book(book_id: int) -> Any:
             cursor = conexion.cursor()
 
             # Verificar si el libro existe
-            query_check_book = "SELECT id_book FROM books WHERE id_book = %s"
+            query_check_book = "SELECT IdBooks FROM Books WHERE IdBook = %s"
             cursor.execute(query_check_book, (book_id,))
             existing_book = cursor.fetchone()
 
@@ -343,7 +419,7 @@ def delete_book(book_id: int) -> Any:
                 )
 
             # Eliminar el libro
-            query_delete_book = "DELETE FROM books WHERE id_book = %s"
+            query_delete_book = "DELETE FROM Books WHERE IdBook = %s"
             cursor.execute(query_delete_book, (book_id,))
 
             # Confirmar la transacción
