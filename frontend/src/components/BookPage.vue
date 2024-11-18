@@ -1,6 +1,6 @@
 <template>
   <div id="main-page" class="main-page">
-    <div v-if="type='book'">
+    <div v-if="type === 'book'">
       Book page info for {{ textInput }}
     </div>
     <div v-else>

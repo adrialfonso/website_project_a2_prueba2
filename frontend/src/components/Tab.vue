@@ -8,7 +8,7 @@
               </h3>
             </div>
             <div class="title-wrap" v-if="column.list.length > maxItems">
-              <a class="link-content" @click="showAll(column.title)">Show all</a>
+              <router-link class="link-content" :to="showAll(column.title)">Show all</router-link>
             </div>
           </div>
 
@@ -63,23 +63,12 @@ export default {
     },
 
     showAll (title) {
-      if (!this.$route.query.category || this.$route.query.category !== title) {
-        const currentQuery = { ...this.$route.query }
-
-        delete currentQuery.category
-
-        const newQuery = {
-          ...currentQuery,
-          category: title,
-          type: 'books'
-        }
-
-        this.$router.push({ query: newQuery }).catch(err => {
-          if (err.name !== 'NavigationDuplicated') {
-            console.error('Error replacing the route', err)
-          }
-        })
+      const newQuery = {
+        category: title,
+        type: 'books'
       }
+      const queryString = new URLSearchParams(newQuery).toString()
+      return `${this.$route.path}?${queryString}`
     }
   },
   mounted () {

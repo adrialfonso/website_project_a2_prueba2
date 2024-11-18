@@ -12,7 +12,7 @@
       <div class="home-search-wrap">
         <div class="tooltip-container">
           <span class="tooltip-text">Home</span>
-           <div class="btn home-icon" @click="setPageHome">
+          <router-link to="/" class="btn home-icon" custom>
               <svg width="43" height="47" viewBox="0 0 43 47" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M1 16.4088L21.25 1.01349L41.5 16.4088V40.6013C41.5 41.7679 41.3803 43.5467 40.5363
                 44.3716C40.5363 45.6284 29.1935 45 28 45V28.0338H14.5V45C13.3065 45 1.96491 45.6284 1.96491
@@ -20,7 +20,7 @@
                       :fill="actualPage==='default'? 'white' : 'transparent'" stroke="white" stroke-width="4"
                       stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-               </div>
+          </router-link>
           </div>
 
         <!-- Miss SearchBar Here -->
@@ -39,7 +39,13 @@
 
               <div class="input-group-wrap">
                 <input class="input-search" type="search" spellcheck="false" placeholder="Search something"
-                       value="" tabindex="0" maxlength="200" v-model="textInput">
+                       value="" tabindex="0" maxlength="200" v-model="textInput" @input="filterSuggestions">
+
+                <!-- Suggestions -->
+                <suggestions :filteredSuggestionsUsers="filteredSuggestionsUsers"
+                              :filteredSuggestionsBooks="filteredSuggestionsBooks"
+                             :errorMessages="errorMessages"
+                             />
               </div>
 
               <div class="genre-line-wrap">
@@ -101,6 +107,8 @@
 </template>
 
 <script>
+import Suggestions from '@/components/Suggestions'
+
 const PageEnum = Object.freeze({
   HOME: 'default',
   SEARCH: 'book-page',
@@ -110,13 +118,24 @@ const PageEnum = Object.freeze({
 
 export default {
   name: 'Navbar',
+  components: { 'suggestions': Suggestions },
   props: {
     actualPage: PageEnum
   },
   data () {
     return {
       textInput: '',
-      type: ''
+      type: '',
+      suggestions: [
+        { id: 1, name: 'Juan Pérez', type: 'user' },
+        { id: 2, name: 'JAna Gómez', type: 'user' },
+        { id: 3, name: 'JEl Quijote', type: 'book' },
+        { id: 4, name: 'JCien años de soledad', type: 'book' },
+        { id: 5, name: 'JMiguel de Cervantes', type: 'author' },
+        { id: 6, name: 'JGabriel García Márquez', type: 'author' } ],
+      filteredSuggestionsUsers: [],
+      filteredSuggestionsBooks: [],
+      errorMessages: []
     }
   },
   watch: {
@@ -144,7 +163,10 @@ export default {
   methods: {
     setPageHome () {
       if (this.actualPage !== PageEnum.HOME) {
+        this.filteredSuggestionsUsers = []
+        this.filteredSuggestionsBooks = []
         this.$emit('home-update')
+
         this.clearRoute()
       }
     },
@@ -161,35 +183,49 @@ export default {
     clearRoute () {
       this.textInput = ''
       if ((this.$route.query.search || this.$route.query.category) && this.$route.query.type) {
-        this.$router.push({query: {}}).catch(() => {
+        this.$router.replace({query: {}}).catch(() => {
           console.error('The router url is the same')
         })
       }
     },
+    filterSuggestions () {
+      this.errorMessages = []
+
+      if (this.textInput.trim()) {
+        if (this.hasSpecialCharacters(this.textInput.trim())) {
+          this.errorMessages.push({ name: 'No special characters allowed', type: 'error' })
+          this.filteredSuggestionsUsers = []
+          this.filteredSuggestionsBooks = []
+          return
+        }
+
+        const input = this.textInput.trim().toLowerCase()
+
+        this.filteredSuggestionsUsers = this.suggestions
+          .filter(({ type, name }) => type === 'user' && name.toLowerCase().includes(input))
+
+        this.filteredSuggestionsBooks = this.suggestions
+          .filter(({ type, name }) => type === 'book' && name.toLowerCase().includes(input))
+
+        if (!this.filteredSuggestionsUsers.length && !this.filteredSuggestionsBooks.length) {
+          this.errorMessages.push({ name: 'No match found', type: 'error' })
+        }
+      } else {
+        this.filteredSuggestionsUsers = []
+        this.filteredSuggestionsBooks = []
+      }
+    },
     startSearch () {
+      this.filteredSuggestionsUsers = []
+      this.filteredSuggestionsBooks = []
+
       if (this.textInput.trim() !== '') {
         this.setPageSearch()
-
-        if ((!this.$route.query.search || this.$route.query.search !== this.textInput) ||
-        (!this.$route.query.type || this.$route.query.type !== this.type)) {
-          const currentQuery = { ...this.$route.query }
-
-          delete currentQuery.search
-          delete currentQuery.type
-
-          const newQuery = {
-            ...currentQuery,
-            search: this.textInput,
-            type: this.type
-          }
-
-          this.$router.push({ query: newQuery }).catch(err => {
-            if (err.name !== 'NavigationDuplicated') {
-              console.error('Error replacing the route', err)
-            }
-          })
-        }
       }
+    },
+    hasSpecialCharacters (input) {
+      const specialCharactersRegex = /^[a-zA-ZñÑáéíóúÁÉÍÓÚüçÜ]+( +[a-zA-ZñÑáéíóúÁÉÍÓÚüçÜ]+)*$/
+      return !specialCharactersRegex.test(input)
     }
   }
 }
@@ -343,10 +379,6 @@ export default {
 .search:hover {
   background: var(--half-transparent-background);
   box-shadow: inset 0 0 0.25rem var(--search-color-shadow);
-}
-
-.search-wrap:focus-within {
-  box-shadow: 0 0 1rem var(--half-transparent-main-background);
 }
 
 .genre-line-wrap{

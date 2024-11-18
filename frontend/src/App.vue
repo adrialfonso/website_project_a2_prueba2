@@ -36,7 +36,7 @@ html, body {
   --text-color: white;
   --second-text-color: #d1cff8;
   --reverse-text-color:#1e1e1e;
-  --text-color-secundary: #1e1e1e;
+  --text-color-secundary: #b1b1b1;
 
   --main-background: #121212;
   --reverse-background: white;

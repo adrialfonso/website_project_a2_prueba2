@@ -1,13 +1,13 @@
 <template>
   <div class="options-content">
-        <div v-for="(item, index) in column" :key="index" v-if="item.data" class="btn" @click="startSearch(item)">
+        <router-link v-for="(item, index) in column" :key="index" v-if="item.data" class="btn" :to="startSearch(item)">
           <div class="card-book" >
             <div class="image-wrap">
               <img loading="lazy" src="@/assets/cover.png" class="image" alt="Cover Book">
             </div>
             <div class="text-wrap">
               <div class="genres">
-                <a v-for="genre in item.data.genres" :key="genre">
+                <a v-for="genre in item.data.genres" :key="genre" :style="{ color: getGenreColor(genre) }">
                   {{ genre }}
                 </a>
               </div>
@@ -22,7 +22,7 @@
               </p>
             </div>
           </div>
-        </div>
+        </router-link>
   </div>
 </template>
 
@@ -34,26 +34,47 @@ export default {
   },
   methods: {
     startSearch (item) {
-      if ((!this.$route.query.search || this.$route.query.search !== item.data.title) ||
-        (!this.$route.query.type || this.$route.query.type !== item.type)) {
-        const currentQuery = { ...this.$route.query }
-
-        delete currentQuery.category
-        delete currentQuery.search
-        delete currentQuery.type
-
-        const newQuery = {
-          ...currentQuery,
-          search: item.data.title,
-          type: item.type
-        }
-
-        this.$router.push({ query: newQuery }).catch(err => {
-          if (err.name !== 'NavigationDuplicated') {
-            console.error('Error replacing the route', err)
-          }
-        })
+      const newQuery = {
+        search: item.data.title,
+        type: item.type
       }
+
+      const queryString = new URLSearchParams(newQuery).toString()
+      return `${this.$route.path}?${queryString}`
+    },
+    getGenreColor (genre) {
+      const genreColors = {
+        'Adventure': '#D1CFF8',
+        'American Literature': '#FCC9F8',
+        'Classic': '#FFC3DE',
+        'Coming-of-age': '#FFC7B1',
+        'Drama': '#C1B4E0',
+        'Dystopian': '#B398C7',
+        'Epic': '#00C6C4',
+        'Fantasy': '#D7F4F2',
+        'Fiction': '#1DC198',
+        'French Literature': '#F9F8FF',
+        'Gothic': '#A67DAC',
+        'Gothic Fiction': '#996290',
+        'Greek Literature': '#8B4772',
+        'Historical Fiction': '#D1CFF8',
+        'Horror': '#FCC9F8',
+        'Italian Literature': '#FFC3DE',
+        'Latin American Literature': '#FFC7B1',
+        'Literature': '#C1B4E0',
+        'Magical Realism': '#B398C7',
+        'Mystery': '#00C6C4',
+        'Philosophy': '#D7F4F2',
+        'Poetry': '#1DC198',
+        'Post-apocalyptic Fiction': '#F9F8FF',
+        'Romance': '#A67DAC',
+        'Russian Literature': '#996290',
+        'Science Fiction': '#8B4772',
+        'Spanish Literature': '#D1CFF8',
+        'Thriller': '#FCC9F8',
+        'Young Adult': '#FFC3DE'
+      }
+      return genreColors[genre] || '#d1cff8'
     }
   }
 }
@@ -124,12 +145,14 @@ export default {
   font-size: var(--font-size-xs);
   gap: var(--panel-gap);
   margin-bottom: calc(var(--panel-gap) /2);
+  font-weight: 700;
 }
 
 .text-card{
   grid-area: title;
   display: flex;
   font-size: var(--font-size-medium);
+  font-weight: 700;
 }
 
 .author{
