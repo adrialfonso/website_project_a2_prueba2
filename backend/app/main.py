@@ -23,7 +23,7 @@ app = FastAPI(
 # Set all CORS enabled origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://polite-plant-051af6c03.5.azurestaticapps.net/"],
+    allow_origins=["https://purple-flower-097487e03.5.azurestaticapps.net/"],
     allow_credentials=True,
     allow_methods=[""],  # Permite todos los métodos HTTP (GET, POST, etc.)
     allow_headers=[""],  # Permite todos los encabezados
