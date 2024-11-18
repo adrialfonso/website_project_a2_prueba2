@@ -65,7 +65,11 @@ export default {
     startSearch (data) {
       this.currentTab = PageEnum.SEARCH
       console.log('Searching for:', data)
-
+      const query = {
+        search: data[0],
+        type: data[1]
+      };
+      this.$router.push({ path: '/', query });
       // If a request is made to the API, it should be async
       // Ejemplo de Book
       if (data[1] === 'book') {
