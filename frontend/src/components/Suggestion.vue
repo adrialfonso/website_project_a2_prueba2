@@ -10,9 +10,11 @@
                     v-for="suggestion in suggestions"
                     :key="suggestion.name"
                     :class="{ 'disabled-option': !selectSuggestionAvailable }">
-                  <router-link :to="computedHref(suggestion)"
-                     class="option-link"
-                     :class="{ 'disabled-link': !selectSuggestionAvailable }">
+
+                  <div v-if="selectSuggestionAvailable">
+                    <router-link
+                     :to="computedHref(suggestion)"
+                     class="option-link">
 
                     <span class="icon-container" v-html="icon"/>
 
@@ -28,6 +30,26 @@
                       Jump to
                     </span>
                   </router-link>
+                  </div>
+
+                  <div v-else
+                       class="option-link"
+                       :class="{ 'disabled-option': !selectSuggestionAvailable }">
+                    <span class="icon-container" v-html="icon"/>
+
+                    <span class="grid-label-wrap">
+                      <span class="label-wrap">
+                        <span>
+                          {{ suggestion.name }}
+                        </span>
+                      </span>
+                    </span>
+
+                    <span class="final-label" v-if="selectSuggestionAvailable">
+                      Jump to
+                    </span>
+                  </div>
+
                 </li>
 
             </ul>
@@ -165,7 +187,7 @@ export default {
 }
 
 .disabled-option {
-  cursor: not-allowed;
+  cursor: default;
 }
 
 .option:hover {
