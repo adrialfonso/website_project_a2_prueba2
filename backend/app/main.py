@@ -21,15 +21,12 @@ app = FastAPI(
 )
 
 # Set all CORS enabled origins
-if settings.BACKEND_CORS_ORIGINS:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[
-            str(origin).strip("/") for origin in settings.BACKEND_CORS_ORIGINS
-        ],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://polite-plant-051af6c03.5.azurestaticapps.net/"],
+    allow_credentials=True,
+    allow_methods=[""],  # Permite todos los métodos HTTP (GET, POST, etc.)
+    allow_headers=[""],  # Permite todos los encabezados
+)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
