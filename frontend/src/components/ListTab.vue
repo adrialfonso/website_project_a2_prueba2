@@ -3,7 +3,7 @@
         <router-link v-for="(item, index) in column" :key="index" v-if="item.data" class="btn" :to="startSearch(item)">
           <div class="card-book" >
             <div class="image-wrap">
-              <img loading="lazy" src="@/assets/cover.png" class="image" alt="Cover Book">
+              <img loading="lazy" :src="item.data.image" class="image" alt="Cover Book">
             </div>
             <div class="text-wrap">
               <div class="genres">

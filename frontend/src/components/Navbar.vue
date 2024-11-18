@@ -108,6 +108,7 @@
 
 <script>
 import Suggestions from '@/components/Suggestions'
+import BookService from '../services/BookService'
 
 const PageEnum = Object.freeze({
   HOME: 'default',
@@ -204,12 +205,23 @@ export default {
         this.filteredSuggestionsUsers = this.suggestions
           .filter(({ type, name }) => type === 'user' && name.toLowerCase().includes(input))
 
-        this.filteredSuggestionsBooks = this.suggestions
-          .filter(({ type, name }) => type === 'book' && name.toLowerCase().includes(input))
+        BookService.readTop5MatchedBooks(input).then(response => {
+          const books = response.data.data
+          this.errorMessages = []
+          this.filteredSuggestionsBooks = books.map(book => ({
+            type: 'book',
+            id: book.id,
+            name: book.title
+          }))
 
-        if (!this.filteredSuggestionsUsers.length && !this.filteredSuggestionsBooks.length) {
-          this.errorMessages.push({ name: 'No match found', type: 'error' })
-        }
+          if (!this.filteredSuggestionsUsers.length && !this.filteredSuggestionsBooks.length) {
+            this.errorMessages.push({ name: 'No match found', type: 'error' })
+          }
+        }).catch(error => {
+          console.error('Error loading books:', error)
+          this.filteredSuggestionsBooks = []
+          this.errorMessages.push({ name: 'Error loading book suggestions', type: 'error' })
+        })
       } else {
         this.filteredSuggestionsUsers = []
         this.filteredSuggestionsBooks = []

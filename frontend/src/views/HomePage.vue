@@ -36,6 +36,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import FilterHeader from '@/components/FilterHeader'
 import CategoryTab from '@/components/CategoryTab'
+import BookService from '../services/BookService'
 
 const PageEnum = Object.freeze({
   HOME: 'default',
@@ -174,82 +175,10 @@ export default {
       this.initializeSearchResults()
     },
     initializeSearchResults () {
-      // If a request is made to the API, it should be async
       const newSearchResults = [
         {
           title: 'Popular Books',
-          list: [
-            {
-              type: 'book',
-              data: {
-                title: 'Book1',
-                genres: ['Fiction', 'Literature', 'Classic'],
-                image: 'image',
-                authors: 'Authors',
-                synopsis: 'Synopsis SynopsisSynopsisSynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis'
-              }
-            },
-            {
-              type: 'book',
-              data: {
-                title: 'Book2',
-                genres: ['Fiction', 'Literature', 'Classic'],
-                image: 'image',
-                authors: 'Authors',
-                synopsis: 'Synopsis SynopsisSynopsisSynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis'
-              }
-            },
-            {
-              type: 'book',
-              data: {
-                title: 'Book3',
-                genres: ['Fiction', 'Literature', 'Classic'],
-                image: 'image',
-                authors: 'Authors',
-                synopsis: 'Synopsis SynopsisSynopsisSynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis'
-              }
-            },
-            {
-              type: 'book',
-              data: {
-                title: 'Book4',
-                genres: ['Fiction', 'Literature', 'Classic'],
-                image: 'image',
-                authors: 'Authors',
-                synopsis: 'Synopsis SynopsisSynopsisSynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis'
-              }
-            },
-            {
-              type: 'book',
-              data: {
-                title: 'Book5',
-                genres: ['Fiction', 'Literature', 'Classic'],
-                image: 'image',
-                authors: 'Authors',
-                synopsis: 'Synopsis SynopsisSynopsisSynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis'
-              }
-            },
-            {
-              type: 'book',
-              data: {
-                title: 'Book6',
-                genres: ['Fiction', 'Literature', 'Classic'],
-                image: 'image',
-                authors: 'Authors',
-                synopsis: 'Synopsis SynopsisSynopsisSynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis'
-              }
-            },
-            {
-              type: 'book',
-              data: {
-                title: 'Book7',
-                genres: ['Fiction', 'Literature', 'Classic'],
-                image: 'image',
-                authors: 'Authors',
-                synopsis: 'Synopsis SynopsisSynopsisSynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis'
-              }
-            }
-          ]
+          list: []
         },
         {
           title: 'Recently Read',
@@ -298,6 +227,22 @@ export default {
           ]
         }
       ]
+      BookService.readBooks().then(response => {
+        const books = response.data.data
+        newSearchResults[0].list = books.map(book => ({
+          type: 'book',
+          data: {
+            title: book.title,
+            genres: book.genres || [],
+            image: book.image,
+            authors: book.authors || 'Unknown Author',
+            synopsis: book.synopsis || 'No synopsis available'
+          }
+        }))
+      })
+        .catch(error => {
+          console.error('Error loading books:', error)
+        })
       if (this.searchResults !== newSearchResults) {
         this.searchResults = newSearchResults
       }

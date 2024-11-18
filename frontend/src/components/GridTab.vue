@@ -2,7 +2,7 @@
   <div class="options-content" :class="{'options-content-fit': column.length > 1}">
         <router-link v-for="(item, index) in column" :key="index" v-if="item.data" class="btn" :to="startSearch(item)">
           <div class="card-book">
-            <img loading="lazy"  src="@/assets/cover.png" class="image" alt="Cover Book">
+            <img loading="lazy" :src="item.data.image" class="image" alt="Cover Book">
             <div class="text-wrap">
               <h5 class="text-card">
                 {{ item.data.title }}
