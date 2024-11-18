@@ -4,6 +4,7 @@ import HomePage from '@/views/HomePage'
 import SignUp from '@/views/SignUp'
 import LogIn from '@/views/LogIn'
 import store from '@/store/store'
+import NotFoundPage from '@/views/NotFoundPage'
 
 Vue.use(Router)
 
@@ -31,8 +32,15 @@ const router = new Router({
       meta: {
         auth: false
       }
+    },
+    {
+      path: '/not-found',
+      component: NotFoundPage
+    },
+    {
+      path: '*',
+      redirect: '/not-found'
     }
-
   ]
 })
 
