@@ -18,7 +18,7 @@
           <filter-header :searchResults="searchResults" :currentTab="currentTab"/>
 
           <transition name="slide-fade" mode="out-in">
-            <component :is="currentTab" :searchResults="searchResults"/>
+            <component :is="currentTab" :searchResults="searchResults" :loading="loading"/>
           </transition>
 
           <footer-tabs/>
@@ -62,7 +62,8 @@ export default {
       isLeftDragging: false,
       columnSizes: ['6rem', 'var(--dragbar-width)', 'auto'],
       searchResults: null,
-      currentTab: PageEnum.HOME
+      currentTab: PageEnum.HOME,
+      loading: true
     }
   },
   created () {
@@ -174,7 +175,8 @@ export default {
       this.currentTab = PageEnum.HOME
       this.initializeSearchResults()
     },
-    initializeSearchResults () {
+    async initializeSearchResults () {
+      this.loading = true
       const newSearchResults = [
         {
           title: 'Popular Books',
@@ -187,7 +189,7 @@ export default {
               type: 'book',
               data: {
                 title: 'Book3',
-                genres: ['Fiction', 'Literature', 'Classic'],
+                genres: 'Fiction' + 'Literature' + 'Classic',
                 image: 'image',
                 authors: 'Authors',
                 synopsis: 'Synopsis SynopsisSynopsisSynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis'
@@ -236,12 +238,15 @@ export default {
             genres: book.genres || [],
             image: book.image,
             authors: book.authors || 'Unknown Author',
-            synopsis: book.synopsis || 'No synopsis available'
+            synopsis: book.synopsis || 'No synopsis available',
+            id: book.id_book
           }
         }))
+        this.loading = false
       })
         .catch(error => {
           console.error('Error loading books:', error)
+          this.loading = false
         })
       if (this.searchResults !== newSearchResults) {
         this.searchResults = newSearchResults
