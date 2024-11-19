@@ -425,6 +425,10 @@ export default {
   border: 0.125rem solid var(--text-color);
 }
 
+.input-group-wrap:focus-within .suggestions {
+  display: block;
+}
+
 .search:hover {
   background: var(--half-transparent-background);
   box-shadow: inset 0 0 0.25rem var(--search-color-shadow);

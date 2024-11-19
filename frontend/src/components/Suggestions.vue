@@ -80,6 +80,7 @@ export default {
 
 <style scoped>
 .suggestions {
+  display: none;
   position: absolute;
   background: var(--box-background-color);
   border: 1px solid var(--half-transparent-background);
