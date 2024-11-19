@@ -34,7 +34,8 @@ export default {
     startSearch (item) {
       const newQuery = {
         search: item.data.title,
-        type: item.type
+        type: item.type,
+        id: item.data.id
       }
 
       const queryString = new URLSearchParams(newQuery).toString()
@@ -71,13 +72,13 @@ export default {
   padding: var(--panel-gap);
 }
 
-.title-header-compact {
-  font-weight: 600;
-  font-size: var(--font-size-xs);
-}
-
 .left {
   text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  margin-right: 1rem;
 }
 
 .right {
