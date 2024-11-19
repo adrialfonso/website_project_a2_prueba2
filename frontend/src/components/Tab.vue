@@ -12,6 +12,13 @@
             </div>
           </div>
 
+          <!-- Show the loader animation if its reading the books -->
+          <div v-if="isLoading">
+              <Transition name="slide-fade" mode="out-in">
+                <component :is="view + '-holder'" :items="maxItems"/>
+              </Transition>
+          </div>
+
           <!-- Types of view -->
           <Transition name="slide-fade" mode="out-in">
             <component :is="view" :column="getVisibleItems(column.list)"/>
@@ -25,11 +32,15 @@
 import GridTab from '@/components/GridTab'
 import ListTab from '@/components/ListTab'
 import CompactTab from '@/components/CompactTab'
+import GridPlaceholder from '@/components/GridPlaceholder'
+import ListPlaceHolder from '@/components/ListPlaceHolder'
+import CompactPlaceHolder from '@/components/CompactPlaceHolder'
 
 export default {
   name: 'DefaultTab',
   props: {
-    searchResults: Array
+    searchResults: Array,
+    loading: Boolean
   },
   data () {
     return {
@@ -40,11 +51,17 @@ export default {
   components: {
     'grid': GridTab,
     'list': ListTab,
-    'compact': CompactTab
+    'compact': CompactTab,
+    'grid-holder': GridPlaceholder,
+    'list-holder': ListPlaceHolder,
+    'compact-holder': CompactPlaceHolder
   },
   computed: {
     view () {
       return this.$store.getters.displayMode
+    },
+    isLoading () {
+      return this.loading
     }
   },
   methods: {

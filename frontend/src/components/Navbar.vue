@@ -39,7 +39,7 @@
 
               <div class="input-group-wrap">
                 <input class="input-search" type="search" spellcheck="false" placeholder="Search something"
-                       value="" tabindex="0" maxlength="200" v-model="textInput" @input="filterSuggestions">
+                       value="" tabindex="0" maxlength="200" v-model="textInput" >
 
                 <!-- Suggestions -->
                 <suggestions :filteredSuggestionsUsers="filteredSuggestionsUsers"
@@ -109,12 +109,19 @@
 <script>
 import Suggestions from '@/components/Suggestions'
 import BookService from '../services/BookService'
+import debounce from 'lodash/debounce'
 
 const PageEnum = Object.freeze({
   HOME: 'default',
   SEARCH: 'book-page',
   CATEGORY: 'category',
   PROFILE: 'Profile'
+})
+
+const CategoryEnum = Object.freeze({
+  POPULAR: 'Popular Books',
+  RECENTLY_READ: 'Recently Read',
+  FOLLOWED: 'Followed Users'
 })
 
 export default {
@@ -127,6 +134,7 @@ export default {
     return {
       textInput: '',
       type: '',
+      id: '',
       suggestions: [
         { id: 1, name: 'Juan Pérez', type: 'user' },
         { id: 2, name: 'JAna Gómez', type: 'user' },
@@ -139,13 +147,17 @@ export default {
       errorMessages: []
     }
   },
+  created () {
+    this.debouncedFilter = debounce(this.filterSuggestions, 300)
+  },
   watch: {
     '$route.query': {
       handler () {
         this.textInput = this.$route.query.search || ''
         this.type = this.$route.query.type || ''
+        this.id = this.$route.query.id || ''
         const categorySearch = this.$route.query.category || ''
-        if (this.textInput !== '' && this.type !== '') {
+        if (this.textInput !== '' && this.type !== '' && this.id !== '') {
           this.startSearch()
         } else if (categorySearch !== '' && this.type !== '') {
           this.setCategory(categorySearch)
@@ -154,6 +166,9 @@ export default {
         }
       },
       immediate: true
+    },
+    textInput () {
+      this.debouncedFilter()
     }
   },
   computed: {
@@ -177,8 +192,11 @@ export default {
       }
     },
     setCategory (categorySearch) {
-      if (this.actualPage !== PageEnum.CATEGORY) {
+      if ((categorySearch === CategoryEnum.POPULAR || categorySearch === CategoryEnum.FOLLOWED ||
+        categorySearch === CategoryEnum.RECENTLY_READ) && this.actualPage !== PageEnum.CATEGORY) {
         this.$emit('category-selected', [categorySearch, this.type])
+      } else if (this.actualPage !== PageEnum.CATEGORY) {
+        this.$router.push('/not-found')
       }
     },
     clearRoute () {
@@ -189,10 +207,19 @@ export default {
         })
       }
     },
-    filterSuggestions () {
+    async filterSuggestions () {
       this.errorMessages = []
 
       if (this.textInput.trim()) {
+        if (this.$route.query.search &&
+          this.$route.query.type &&
+            this.textInput === this.$route.query.search &&
+            this.$route.query.type === this.type) {
+          this.filteredSuggestionsUsers = []
+          this.filteredSuggestionsBooks = []
+          return
+        }
+
         if (this.hasSpecialCharacters(this.textInput.trim())) {
           this.errorMessages.push({ name: 'No special characters allowed', type: 'error' })
           this.filteredSuggestionsUsers = []
@@ -210,7 +237,7 @@ export default {
           this.errorMessages = []
           this.filteredSuggestionsBooks = books.map(book => ({
             type: 'book',
-            id: book.id,
+            id: book.id_book,
             name: book.title
           }))
 
@@ -227,16 +254,26 @@ export default {
         this.filteredSuggestionsBooks = []
       }
     },
-    startSearch () {
+    async startSearch () {
       this.filteredSuggestionsUsers = []
       this.filteredSuggestionsBooks = []
+
+      BookService.readBookById(this.id).then(response => {
+        const book = response.data
+        if (book.title !== this.textInput) {
+          this.$router.push('/not-found')
+        }
+      }).catch(error => {
+        console.error('Error reading a book:', error)
+        this.$router.push('/not-found')
+      })
 
       if (this.textInput.trim() !== '') {
         this.setPageSearch()
       }
     },
     hasSpecialCharacters (input) {
-      const specialCharactersRegex = /^[a-zA-ZñÑáéíóúÁÉÍÓÚüçÜ]+( +[a-zA-ZñÑáéíóúÁÉÍÓÚüçÜ]+)*$/
+      const specialCharactersRegex = /^[a-zA-ZñÑáéíóúÁÉÍÓÚüçÜ0-9]+( +[a-zA-ZñÑáéíóúÁÉÍÓÚüçÜ0-9]+)*$/
       return !specialCharactersRegex.test(input)
     }
   }

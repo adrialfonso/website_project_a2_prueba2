@@ -7,7 +7,7 @@
             </div>
             <div class="text-wrap">
               <div class="genres">
-                <a v-for="genre in item.data.genres" :key="genre" :style="{ color: getGenreColor(genre) }">
+               <a v-for="genre in item.data.genres.split(',')" :key="genre" :style="{ color: getGenreColor(genre) }">
                   {{ genre }}
                 </a>
               </div>
@@ -36,7 +36,8 @@ export default {
     startSearch (item) {
       const newQuery = {
         search: item.data.title,
-        type: item.type
+        type: item.type,
+        id: item.data.id
       }
 
       const queryString = new URLSearchParams(newQuery).toString()
@@ -74,7 +75,7 @@ export default {
         'Thriller': '#FCC9F8',
         'Young Adult': '#FFC3DE'
       }
-      return genreColors[genre] || '#d1cff8'
+      return genreColors[genre.trim()] || '#d1cff8'
     }
   }
 }
@@ -115,7 +116,6 @@ export default {
 }
 
 .image {
-  width: 9.375rem;
   height: 11rem;
   border-radius: var(--border-radius);
   box-shadow: 0 0 0.5rem var(--half-transparent-main-background);
@@ -139,6 +139,11 @@ export default {
 
 .genres{
   grid-area: genres;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   display: flex;
   color: var(--second-text-color);
   line-height: 1rem;
@@ -150,9 +155,15 @@ export default {
 
 .text-card{
   grid-area: title;
-  display: flex;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: var(--font-size-medium);
   font-weight: 700;
+  text-align: left;
+  position: relative;
 }
 
 .author{
