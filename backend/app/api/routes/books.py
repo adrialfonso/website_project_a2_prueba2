@@ -23,6 +23,71 @@ user = settings.USERDB
 password = settings.PASSWORD
 database = settings.DATABASE
 
+@router.post("/filter-by-genres", response_model=BooksOut)
+def filter_books_by_genres(genres: list[str]) -> Any:
+    """
+    Retrieve books that match any of the genres provided in the list.
+    """
+    try:
+        # Conexión a la base de datos
+        conexion = mysql.connector.connect(
+            host=host,
+            user=user,
+            password=password,
+            database=database,
+            port=3306
+        )
+
+        if conexion.is_connected():
+            print("Conexión exitosa a la base de datos")
+            cursor = conexion.cursor()
+
+            # Crear la consulta dinámica para los géneros
+            query_books = f"""
+                SELECT IdBook as id_book, Title as title, Authors as authors, Synopsis as synopsis, BuyLink as buy_link, 
+                Genres as genres, Rating as rating, Editorial as editorial, Comments as comments, PublicationDate as publication_date, Image as image
+                FROM Books
+                WHERE Genres IN ({', '.join(['%s'] * len(genres))})
+            """
+
+            # Ejecutar la consulta con los géneros proporcionados
+            cursor.execute(query_books, tuple(genres))
+            filas = cursor.fetchall()
+
+            # Contar el total de libros
+            query_count = "SELECT COUNT(1) FROM Books WHERE Genres IN ({})".format(', '.join(['%s'] * len(genres)))
+            cursor.execute(query_count, tuple(genres))
+            count = cursor.fetchone()[0]
+
+            # Transformar las filas obtenidas en una lista de objetos BookOut
+            books_data = [
+                BookOut(
+                    id_book=row[0],
+                    title=row[1],
+                    authors=row[2],
+                    synopsis=row[3],
+                    buy_link=row[4],
+                    genres=row[5],
+                    rating=row[6],
+                    editorial=row[7],
+                    comments=row[8],
+                    publication_date=row[9].isoformat() if row[9] else None,  # Convertir a string
+                    image=row[10]
+                ) for row in filas
+            ]
+
+            return BooksOut(data=books_data, count=count)
+
+    except mysql.connector.Error as e:
+        print(f"Error al conectar a MySQL: {e}")
+        raise HTTPException(status_code=500, detail="Error connecting to the database.")
+
+    finally:
+        if conexion.is_connected():
+            cursor.close()
+            conexion.close()
+            print("Conexión cerrada")
+
 
 @router.get("/{keyword}", response_model=BooksOut)
 def read_top5_matched_books(keyword: str) -> Any:
