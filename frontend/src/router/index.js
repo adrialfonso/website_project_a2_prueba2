@@ -4,7 +4,7 @@ import HomePage from '@/views/HomePage'
 import SignUp from '@/views/SignUp'
 import LogIn from '@/views/LogIn'
 import store from '@/store/store'
-import NotFoundPage from '@/views/NotFoundPage'
+import NotFound from '@/views/NotFound'
 
 Vue.use(Router)
 
@@ -35,7 +35,7 @@ const router = new Router({
     },
     {
       path: '/not-found',
-      component: NotFoundPage
+      component: NotFound
     },
     {
       path: '*',
