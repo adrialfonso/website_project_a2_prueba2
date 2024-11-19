@@ -16,8 +16,10 @@ RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 RUN pip install mysql-connector-python==9.1.0
 
 COPY ./app /app/app/
+
+EXPOSE 80
 COPY ./alembic.ini /app/
 COPY ./alembic /app/alembic
 COPY ./prestart.sh /app/
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
