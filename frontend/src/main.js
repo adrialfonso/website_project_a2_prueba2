@@ -4,6 +4,7 @@ import Vue from 'vue'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import App from './App'
 import router from './router'
+import store from './store/store'
 
 // Importar els fitxers CSS de Bootstrap i BootstrapVue (l'ordre és important)
 import 'bootstrap/dist/css/bootstrap.css'
@@ -19,6 +20,7 @@ Vue.use(IconsPlugin)
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
+  store,
   router,
   components: { App },
   template: '<App/>'

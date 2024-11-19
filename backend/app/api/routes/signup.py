@@ -6,6 +6,7 @@ from app.models import UserCreate, UserOut
 from app.core.security import get_password_hash
 import mysql.connector
 from app.core.config import settings
+from typing import Any
 
 router = APIRouter()
 host = settings.HOST
