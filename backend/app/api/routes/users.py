@@ -97,7 +97,7 @@ def read_top5_matched_users(keyword: str) -> Any:
 
 
 @router.get("/")
-def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
+def read_users(skip: int = 0, limit: int = 100) -> Any:
     """
     Retrieve users.
     """

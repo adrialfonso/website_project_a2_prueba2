@@ -4,11 +4,11 @@
       <div class="container py-5 h-100">
         <div class="row justify-content-center align-items-center h-100">
           <div class="col-12 col-lg-9 col-xl-7">
-            <div class="card shadow-2-strong card-registration" style="border-radius: 15px; border-radius: 15px;">
+            <div class="card shadow-2-strong card-registration" style="border-radius: calc(var(--border-radius) * 3)">
               <div class="card-body p-4 p-md-5">
 
                 <div class="text-center mb-4">
-                  <img src="@/assets/bookhub-black.svg" alt="BookHub Logo" class="bookhub-logo">
+                  <img loading="lazy" src="@/assets/bookhub-black.svg" alt="BookHub Logo" class="bookhub-logo">
                 </div>
 
                 <h2 class="title mb-4 pb-3 pb-md-0 mb-md-5">Create Your ReadHub Account</h2>
@@ -165,6 +165,13 @@ export default {
       errorMessage: false
     }
   },
+  mounted () {
+    const username = this.$store.getters.username
+
+    if (username) {
+      this.$router.push('/')
+    }
+  },
   watch: {
     password () {
       // When password changes, check the confirm password
@@ -176,18 +183,18 @@ export default {
     }
   },
   methods: {
-    login_user () {
+    async login_user () {
       AuthService.login(this.email, this.password)
         .then(res => {
-          this.logged = true
-          this.$router.push({ path: '/', query: { username: this.username, logged: this.logged } })
+          this.$store.dispatch('setUser', { username: this.username })
+          this.$router.push({ name: 'HomePage' })
         })
         .catch((error) => {
           console.error(error)
           this.errorMessage = 'Username or Password incorrect'
         })
     },
-    register_user (event) {
+    async register_user (event) {
       // Calls the register method from AuthService
       AuthService.register(this.email, this.username, this.password, this.name, this.lastname)
         .then(res => {
@@ -388,9 +395,6 @@ export default {
 
 </script>
 <style scoped>
-  .gradient-custom {
-    background: linear-gradient(135deg, #6f86d6, #48c6ef);
-  }
 
   .card-registration .select-input.form-control[readonly]:not([disabled]) {
     font-size: 1rem;
@@ -430,7 +434,7 @@ export default {
   }
 
   .text-link {
-    color: #5777F5FF;
+    color: var(--blue-link);
     font-weight: bold;
   }
 
