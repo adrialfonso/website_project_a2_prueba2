@@ -78,7 +78,8 @@ export default {
     computedHref (suggestion) {
       const newQuery = {
         search: suggestion.name,
-        type: suggestion.type
+        type: suggestion.type,
+        id: suggestion.id
       }
 
       const queryString = new URLSearchParams(newQuery).toString()

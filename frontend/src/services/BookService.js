@@ -39,6 +39,23 @@ class BookService {
         return Promise.reject(error)
       })
   }
+
+  readBookById (id) {
+    const config = {
+      headers: {
+        'accept': 'application/json'
+      }
+    }
+    const path = '/api/v1/books/book/' + id
+
+    return http.get(path, config)
+      .then((res) => {
+        return res
+      })
+      .catch((error) => {
+        return Promise.reject(error)
+      })
+  }
 }
 
 export default new BookService()

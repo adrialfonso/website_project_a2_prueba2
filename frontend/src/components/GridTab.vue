@@ -23,7 +23,8 @@ export default {
     startSearch (item) {
       const newQuery = {
         search: item.data.title,
-        type: item.type
+        type: item.type,
+        id: item.data.id
       }
 
       const queryString = new URLSearchParams(newQuery).toString()

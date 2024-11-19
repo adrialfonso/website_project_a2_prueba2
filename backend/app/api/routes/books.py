@@ -157,7 +157,7 @@ def read_books(skip: int = 0, limit: int = 100) -> Any:
             print("Conexión cerrada")
 
 
-@router.get("/{book_id}", response_model=BookOut)
+@router.get("/book/{book_id}", response_model=BookOut)
 def read_book(book_id: int) -> Any:
     """
     Retrieve a specific book by its ID.
