@@ -184,18 +184,7 @@ export default {
         },
         {
           title: 'Recently Read',
-          list: [
-            {
-              type: 'book',
-              data: {
-                title: 'Book3',
-                genres: 'Fiction' + 'Literature' + 'Classic',
-                image: 'image',
-                authors: 'Authors',
-                synopsis: 'Synopsis SynopsisSynopsisSynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis'
-              }
-            }
-          ]
+          list: []
         },
         {
           title: 'Followed Users',

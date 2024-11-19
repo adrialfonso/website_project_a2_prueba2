@@ -1,7 +1,52 @@
 <template>
   <div class="view-as gradient-custom-header">
 
-      <!-- Toggle View: Grid, List and Compact -->
+     <!-- Filter options -->
+      <div class="filter-options-wrap" v-if="username && currentTab !== 'book-page'">
+        <div class="filter-options" role="toolbar">
+          <!-- All filter -->
+          <Transition name="slide-up">
+            <button id="filterAll" class="filter-btn" v-show="!filterBooks && !filterUsers" :class="{'button-selected': filterAll}">All</button>
+          </Transition>
+          <Transition name="slide-up">
+            <button id="undoFilter" class="filter-btn clear-btn" v-show="filterBooks || filterUsers" @click="clearFilter">X</button>
+
+          </Transition>
+          <button id="filterBooks" class="filter-btn" :class="{'button-selected': filterBooks}" v-show="!filterUsers" @click="selectFilter('filterBooks')">Books</button>
+          <button id="filterUsers" class="filter-btn" :class="{'button-selected': filterUsers}" v-show="!filterBooks" @click="selectFilter('filterUsers')">Users</button>
+
+          <!-- Genres Selected -->
+          <div class="content-selected">
+              <div v-for="genre in getGenreViewButtons" :key="genre">
+              <button id="genre" class="genres-buttons">
+                <span class="genre-icon-content" v-html="getIconByGenre(genre,'#282828', '#FFFFFF')"/>
+                <span class="line"></span>
+                <span class="close-icon" @click="deactivateGenre(genre)">
+                  <svg width="16" height="16" viewBox="0 0 70 77" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M64.9999 5L35 38.5M35 38.5L5 72M35 38.5L5.00006 5M35 38.5L65 72" stroke="black" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Genre dropdowns -->
+          <div class="dropdown" v-show="filterBooks" ref="dropdown">
+            <button class="filter-btn" @click="toggleDropdown">Genre</button>
+            <div class="dropdown-content" v-show="getDropdownOpen && getGenresList.length > 0">
+              <div class="option-dropdown" role="option" v-for="genreItem in getGenresList" :key="genreItem" @click="applyFilterGenre(genreItem)">
+                <span class="icon-content" v-html="getIconByGenre(genreItem,'#282828', '#FFFFFF')"/>
+                <span class="text-dropdown">
+                  {{ genreItem }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Toogle View: Grid, List and Compact -->
       <div class="toggle-wrap" v-if="currentTab !== 'book-page'">
         <input type="radio" id="toggle1" name="toggle" class="toggleCheckbox" @click="setView('grid')" :checked="view === 'grid'"/>
         <input type="radio" id="toggle2" name="toggle" class="toggleCheckbox" @click="setView('list')" :checked="view === 'list'"/>
@@ -40,11 +85,34 @@
 </template>
 <script>
 
+import { genreIcons } from '@/assets/icon.js'
+
 export default {
   name: 'FilterHeader',
   props: {
     searchResults: Array,
     currentTab: String
+  },
+  data () {
+    return {
+      filterAll: true,
+      filterBooks: false,
+      filterUsers: false,
+      filters: ['filterAll'],
+      genresList: [
+        'Fiction',
+        'Classic',
+        'Romance',
+        'Adventure',
+        'Fantasy',
+        'Horror',
+        'Epic',
+        'Science Fiction'
+      ],
+      genreViewButtons: [],
+      dropdownOpen: false
+
+    }
   },
   computed: {
     view () {
@@ -52,6 +120,15 @@ export default {
     },
     username () {
       return this.$store.getters.username
+    },
+    getGenreViewButtons () {
+      return this.genreViewButtons
+    },
+    getGenresList () {
+      return this.genresList
+    },
+    getDropdownOpen () {
+      return this.dropdownOpen
     }
   },
   methods: {
@@ -59,11 +136,182 @@ export default {
       if (display !== this.view) {
         this.$store.dispatch('setDisplayMode', display)
       }
+    },
+    initFilter () {
+      const filterList = this.filters
+
+      this.filterAll = filterList.includes('filterAll')
+      this.filterBooks = filterList.includes('filterBooks')
+      this.filterUsers = filterList.includes('filterUsers')
+    },
+    selectFilter (filterId) {
+      const filter = document.getElementById(filterId)
+      let filterList = [...this.filters]
+
+      if (this.hasOwnProperty(filterId)) {
+        this[filterId] = !this[filterId]
+      }
+
+      if (!filter.classList.contains('button-selected')) {
+        filter.classList.add('button-selected')
+        if (!filterList.includes(filterId)) {
+          filterList.push(filterId)
+        }
+      } else {
+        filter.classList.remove('button-selected')
+        filterList = filterList.filter(item => item !== filterId)
+      }
+
+      this.filters = filterList
+    },
+    clearFilter () {
+      this.filterAll = true
+      this.filterBooks = false
+      this.filterUsers = false
+
+      this.filters = ['filterAll']
+      this.genreViewButtons = []
+      this.genresList = [
+        'Fiction',
+        'Classic',
+        'Romance',
+        'Adventure',
+        'Fantasy',
+        'Horror',
+        'Epic',
+        'Science Fiction']
+    },
+    applyFilterGenre (genre) {
+      if (!this.genreViewButtons.includes(genre)) {
+        this.genreViewButtons.push(genre)
+      }
+      this.genresList = this.genresList.filter(item => item !== genre)
+    },
+
+    deactivateGenre (genre) {
+      if (this.genreViewButtons.includes(genre)) {
+        this.genreViewButtons = this.genreViewButtons.filter(item => item !== genre)
+      }
+
+      if (!this.genresList.includes(genre)) {
+        this.genresList.push(genre)
+      }
+    },
+    getIconByGenre (genre, color1, color2) {
+      if (genreIcons[genre]) {
+        return genreIcons[genre](color1, color2)
+      } else {
+        console.error(`Icon for genre "${genre}" not found`)
+        return ''
+      }
+    },
+    toggleDropdown () {
+      this.dropdownOpen = !this.dropdownOpen
+    },
+    closeDropdown (event) {
+      const dropdown = this.$refs.dropdown
+      if (dropdown && !dropdown.contains(event.target)) {
+        this.dropdownOpen = false
+      }
     }
+  },
+  mounted () {
+    document.addEventListener('click', this.closeDropdown)
+  },
+  beforeDestroy () {
+    document.removeEventListener('click', this.closeDropdown)
   }
 }
 </script>
 <style scoped>
+.filter-options-wrap {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  padding: calc(var(--panel-gap) / 2);
+}
+
+.filter-options {
+  display: flex;
+  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+  font-size: var(--font-size-xs);
+}
+
+.content-selected{
+  display: flex;
+  flex-direction: row;
+  gap: var(--panel-gap);
+  overflow-x: auto;
+  max-width: 10rem;
+}
+
+.filter-btn {
+  color: var(--text-color);
+  border-radius: calc(var(--border-radius) * 3);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border: 0;
+  background-color: var(--half-transparent-background);
+}
+
+.clear-btn{
+  border-radius: calc(var(--border-radius) * 9);
+}
+
+.button-selected{
+  font-weight: 600;
+  color: var(--reverse-text-color);
+  background-color: var(--reverse-background);
+}
+
+.filter-btn:hover {
+  background-color: var(--half-transparent-background);
+  color: var(--text-color);
+}
+
+/* Dropdown styling */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-content {
+  position: absolute;
+  background-color: var(--box-background-color);
+  border: 1px solid var(--half-transparent-background);
+  border-radius: calc(var(--border-radius) * 2);
+  z-index: 4;
+  overflow-y: auto;
+  height: auto;
+  max-height: 20rem;
+  width: 100%;
+  min-width: 15.5rem;
+  margin-top: 0.5rem;
+  padding: calc(var(--panel-gap)* 2);
+  padding-inline: calc(var(--panel-gap)* 2);
+}
+
+.option-dropdown{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: var(--border-radius);
+  list-style: none;
+}
+
+.icon-content{
+  align-self: start;
+}
+
+.text-dropdown{
+  text-align: right;
+}
+
+.option-dropdown:hover {
+  background: var(--half-transparent-background);
+}
+
 .view-as{
   grid-area: filter-option;
   display: flex;
@@ -74,6 +322,7 @@ export default {
   justify-content:flex-start;
   padding: calc(var(--panel-gap)*2);
   align-items: center;
+  height: 5rem;
 }
 
 .toggle-wrap {
@@ -116,6 +365,37 @@ export default {
     transition: all 0.3s;
 }
 
+.genres-buttons{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: calc(var(--border-radius) * 3);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-weight: 600;
+  color: var(--reverse-text-color);
+  background-color: var(--reverse-background);
+  border: 0;
+}
+
+.genre-icon-content{
+  margin-right: 0.5rem;
+}
+
+.line{
+  height: 1.5rem;
+  width: 0.1rem;
+  background-color: var(--box-background-color);
+  margin: 0 0.5rem;
+}
+
+.close-icon{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .toggleCheckbox {
     display: none;
 }
@@ -131,4 +411,21 @@ export default {
 #toggle3:checked ~ .toggleContainer .toggleIndicator {
     left: 68.66%;
 }
+
+/* Transition when the element enters */
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.25s ease-out;
+}
+
+.slide-up-enter-from {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
 </style>
