@@ -37,7 +37,7 @@ password = settings.PASSWORD
 database = settings.DATABASE
 
 @router.get("/{keyword}", response_model=UsersOut)
-def read_top5_matched_books(keyword: str) -> Any:
+def read_top5_matched_users(keyword: str) -> Any:
     try:
         # Conexión a la base de datos
         conexion = mysql.connector.connect(
@@ -57,6 +57,7 @@ def read_top5_matched_books(keyword: str) -> Any:
                 SELECT id_user, name, surname, username, email
                    FROM users
                    WHERE name LIKE %s OR surname LIKE %s or username LIKE %s
+                   LIMIT 5;
             """
 
             # Preparar el parámetro de búsqueda con el carácter comodín
