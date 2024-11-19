@@ -65,49 +65,11 @@ export default {
     startSearch (data) {
       this.currentTab = PageEnum.SEARCH
       console.log('Searching for:', data)
-
-      // If a request is made to the API, it should be async
-      // Ejemplo de Book
-      if (data[1] === 'book') {
-        this.searchResults = [
-          {
-            title: 'Search',
-            list:
-              {
-                type: 'book',
-                data: {
-                  title: 'Book1',
-                  Authors: 'AuthorsName',
-                  Synopsis: 'Synopsis info',
-                  BuyLink: 'BuyLink info',
-                  Genres: 'Gerne1, Gernre2',
-                  Rating: 0.0,
-                  Editorial: 'EditorialName',
-                  Comments: [],
-                  PublicationDate: '11/11/11',
-                  Image: 'image'
-                }
-              }
-          }
-        ]
-      } else if (data[1] === 'user') {
-        // Ejemplo de user
-        this.searchResults = [
-          {
-            title: 'Search',
-            list:
-              {
-                type: 'user',
-                data: {
-                  name: 'Book1',
-                  surname: 'AuthorsName',
-                  username: 'Synopsis info',
-                  email: 'BuyLink info'
-                }
-              }
-          }
-        ]
+      const query = {
+        search: data[0],
+        type: data[1]
       }
+      this.$router.push({ path: '/', query })
     }
   }
 }
