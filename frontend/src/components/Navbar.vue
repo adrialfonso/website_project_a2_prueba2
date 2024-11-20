@@ -110,6 +110,7 @@
 import Suggestions from '@/components/Suggestions'
 import BookService from '../services/BookService'
 import debounce from 'lodash/debounce'
+import UserService from '../services/UserService'
 
 const PageEnum = Object.freeze({
   HOME: 'default',
@@ -135,16 +136,11 @@ export default {
       textInput: '',
       type: '',
       id: '',
-      suggestions: [
-        { id: 1, name: 'Juan Pérez', type: 'user' },
-        { id: 2, name: 'JAna Gómez', type: 'user' },
-        { id: 3, name: 'JEl Quijote', type: 'book' },
-        { id: 4, name: 'JCien años de soledad', type: 'book' },
-        { id: 5, name: 'JMiguel de Cervantes', type: 'author' },
-        { id: 6, name: 'JGabriel García Márquez', type: 'author' } ],
+      suggestions: [],
       filteredSuggestionsUsers: [],
       filteredSuggestionsBooks: [],
-      errorMessages: []
+      errorMessages: [],
+      showSuggestions: false
     }
   },
   created () {
@@ -163,6 +159,8 @@ export default {
           this.setCategory(categorySearch)
         } else {
           this.setPageHome()
+          this.filteredSuggestionsUsers = []
+          this.filteredSuggestionsBooks = []
         }
       },
       immediate: true
@@ -209,7 +207,8 @@ export default {
     },
     async filterSuggestions () {
       this.errorMessages = []
-
+      this.filteredSuggestionsUsers = []
+      this.filteredSuggestionsBooks = []
       if (this.textInput.trim()) {
         if (this.$route.query.search &&
           this.$route.query.type &&
@@ -226,29 +225,40 @@ export default {
           this.filteredSuggestionsBooks = []
           return
         }
-
         const input = this.textInput.trim().toLowerCase()
-
-        this.filteredSuggestionsUsers = this.suggestions
-          .filter(({ type, name }) => type === 'user' && name.toLowerCase().includes(input))
-
-        BookService.readTop5MatchedBooks(input).then(response => {
-          const books = response.data.data
-          this.errorMessages = []
-          this.filteredSuggestionsBooks = books.map(book => ({
-            type: 'book',
-            id: book.id_book,
-            name: book.title
-          }))
-
-          if (!this.filteredSuggestionsUsers.length && !this.filteredSuggestionsBooks.length) {
-            this.errorMessages.push({ name: 'No match found', type: 'error' })
-          }
-        }).catch(error => {
-          console.error('Error loading books:', error)
-          this.filteredSuggestionsBooks = []
-          this.errorMessages.push({ name: 'Error loading book suggestions', type: 'error' })
-        })
+        Promise.all([
+          UserService.readTop5MatchedUsers(input)
+            .then(response => {
+              const users = response.data.data
+              this.filteredSuggestionsUsers = users.map(user => ({
+                type: 'user',
+                id: user.id_user,
+                name: user.name + ' ' + user.surname
+              }))
+            })
+            .catch(error => {
+              console.error('Error loading users:', error)
+              this.filteredSuggestionsUsers = []
+            }),
+          BookService.readTop5MatchedBooks(input)
+            .then(response => {
+              const books = response.data.data
+              this.filteredSuggestionsBooks = books.map(book => ({
+                type: 'book',
+                id: book.id_book,
+                name: book.title
+              }))
+            })
+            .catch(error => {
+              console.error('Error loading books:', error)
+              this.filteredSuggestionsBooks = []
+            })
+        ])
+          .then(() => {
+            if (!this.filteredSuggestionsUsers.length && !this.filteredSuggestionsBooks.length) {
+              this.errorMessages.push({ name: 'No match found', type: 'error' })
+            }
+          })
       } else {
         this.filteredSuggestionsUsers = []
         this.filteredSuggestionsBooks = []
@@ -423,6 +433,10 @@ export default {
 
 .input-search:focus {
   border: 0.125rem solid var(--text-color);
+}
+
+.input-group-wrap:focus-within .suggestions {
+  display: block;
 }
 
 .search:hover {

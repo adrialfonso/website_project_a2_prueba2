@@ -68,6 +68,7 @@ export default {
 }
 
 .image{
+  height: 17rem;
   border-radius: var(--border-radius);
   box-shadow: 0 0 0.5rem var(--half-transparent-main-background);
 }

@@ -15,7 +15,7 @@
                                                   @touchstart="StartLeftDrag"></div>
 
         <div id="tabs" class="tabs">
-          <filter-header :searchResults="searchResults" :currentTab="currentTab"/>
+          <filter-header :searchResults="searchResults" :currentTab="currentTab" @genres-updated="handleGenresUpdate"/>
 
           <transition name="slide-fade" mode="out-in">
             <component :is="currentTab" :searchResults="searchResults" :loading="loading"/>
@@ -70,6 +70,35 @@ export default {
     this.initializeSearchResults()
   },
   methods: {
+    handleGenresUpdate (selectedGenres) {
+      this.loading = true
+      this.searchResults[0].list = []
+      if (selectedGenres.length === 0) {
+        this.initializeSearchResults()
+        this.loading = false
+        return
+      }
+      BookService.filterBooks(selectedGenres).then(response => {
+        const books = response.data.data
+        this.searchResults[0].list = books.map(book => ({
+          type: 'book',
+          data: {
+            title: book.title,
+            genres: book.genres || [],
+            image: book.image,
+            authors: book.authors || 'Unknown Author',
+            synopsis: book.synopsis || 'No synopsis available',
+            id: book.id_book
+          }
+        }))
+        console.log('a', this.searchResults)
+        this.loading = false
+      })
+        .catch(error => {
+          console.error('Error loading books:', error)
+          this.loading = false
+        })
+    },
     ResetColumnSizes () {
       let page = document.getElementById('page')
       if (!page) return
@@ -184,18 +213,7 @@ export default {
         },
         {
           title: 'Recently Read',
-          list: [
-            {
-              type: 'book',
-              data: {
-                title: 'Book3',
-                genres: 'Fiction' + 'Literature' + 'Classic',
-                image: 'image',
-                authors: 'Authors',
-                synopsis: 'Synopsis SynopsisSynopsisSynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis SynopsisSynopsisSynopsis SynopsisSynopsis'
-              }
-            }
-          ]
+          list: []
         },
         {
           title: 'Followed Users',
