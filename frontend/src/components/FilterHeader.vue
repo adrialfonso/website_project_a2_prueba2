@@ -21,6 +21,7 @@
               <button id="genre" class="genres-buttons">
                 <span class="genre-icon-content" v-html="getIconByGenre(genre,'#FFFFFF', '#282828')"/>
                 <span style="white-space: nowrap"> {{genre}} </span>
+                <span class="line"></span>
                 <span class="close-icon" @click="deactivateGenre(genre)">
                   <svg width="16" height="16" viewBox="0 0 70 77" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M64.9999 5L35 38.5M35 38.5L5 72M35 38.5L5.00006 5M35 38.5L65 72" stroke="black" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
@@ -178,10 +179,8 @@ export default {
       this.$emit('filter-changed', {filters: this.filters})
     },
     applyFilterGenre (genre) {
-      if (this.genresList[genre]) {
-        this.genresList[genre] = false
-        this.$emit('genres-updated', [...this.getGenreViewButtons])
-      }
+      this.genresList[genre] = !this.genresList[genre]
+      this.$emit('genres-updated', [...this.getGenreViewButtons])
     },
 
     deactivateGenre (genre) {
