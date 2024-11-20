@@ -163,6 +163,7 @@ export default {
       }
 
       this.filters = filterList
+      this.$emit('filter-changed', {filters: this.filters})
     },
     clearFilter () {
       this.filterAll = true
@@ -180,10 +181,12 @@ export default {
         'Horror',
         'Epic',
         'Science Fiction']
+      this.$emit('filter-changed', {filters: this.filters})
     },
     applyFilterGenre (genre) {
       if (!this.genreViewButtons.includes(genre)) {
         this.genreViewButtons.push(genre)
+        this.$emit('genres-updated', [...this.genreViewButtons])
       }
       this.genresList = this.genresList.filter(item => item !== genre)
     },
@@ -196,6 +199,7 @@ export default {
       if (!this.genresList.includes(genre)) {
         this.genresList.push(genre)
       }
+      this.$emit('genres-updated', [...this.genreViewButtons])
     },
     getIconByGenre (genre, color1, color2) {
       if (genreIcons[genre]) {

@@ -56,6 +56,23 @@ class BookService {
         return Promise.reject(error)
       })
   }
+  filterBooks (genres) {
+    const config = {
+      headers: {
+        'accept': 'application/json'
+      }
+    }
+
+    const path = '/api/v1/books/filter-by-genres'
+
+    return http.post(path, genres, config)
+      .then((res) => {
+        return res
+      })
+      .catch((error) => {
+        return Promise.reject(error)
+      })
+  }
 }
 
 export default new BookService()
