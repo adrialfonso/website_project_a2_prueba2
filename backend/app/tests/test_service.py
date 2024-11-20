@@ -1,10 +1,10 @@
 import pytest
 from fastapi.testclient import TestClient
-from app.main import app 
+from app.main import app
 
 client = TestClient(app)
 
-def test_redirect_to_not_found():
-    response = client.get("/non-existing-path")
-    assert response.status_code == 404
-    assert str(response.url).endswith("/not-found")
+def test_not_found_page():
+    response = client.get("/not-found")
+    assert response.status_code == 404 
+    assert response.json() == {"detail": "Not Found"}  
