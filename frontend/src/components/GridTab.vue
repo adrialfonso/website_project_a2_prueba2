@@ -1,5 +1,5 @@
 <template>
-  <div class="options-content" :class="{'options-content-fit': column.length > 1}">
+  <div class="options-content">
         <router-link v-for="(item, index) in column" :key="index" v-if="item.data" class="btn" :to="startSearch(item)">
           <div class="card-book">
             <img loading="lazy" :src="item.data.image" class="image" alt="Cover Book">
@@ -40,10 +40,6 @@ export default {
   gap: 1rem;
   align-items: center;
   padding-block: var(--panel-gap);
-}
-
-.options-content-fit{
- grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
 }
 
 .btn{
