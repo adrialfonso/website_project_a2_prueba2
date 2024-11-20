@@ -91,7 +91,6 @@ export default {
             id: book.id_book
           }
         }))
-        console.log('a', this.searchResults)
         this.loading = false
       })
         .catch(error => {
