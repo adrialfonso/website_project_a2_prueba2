@@ -172,8 +172,9 @@ export default {
 
       this.filters = ['filterAll']
       Object.keys(this.genresList).forEach((genre) => {
-        this.genresList[genre] = false
+        this.genresList[genre] = true
       })
+      this.$emit('genres-updated', [...this.getGenreViewButtons])
       this.$emit('filter-changed', {filters: this.filters})
     },
     applyFilterGenre (genre) {
@@ -181,7 +182,6 @@ export default {
         this.genresList[genre] = false
         this.$emit('genres-updated', [...this.getGenreViewButtons])
       }
-      // this.genresList = this.genresList.filter(item => item !== genre)
     },
 
     deactivateGenre (genre) {
