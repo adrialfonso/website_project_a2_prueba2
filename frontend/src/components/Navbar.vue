@@ -37,14 +37,15 @@
                 </div>
               </div>
 
-              <div class="input-group-wrap">
+              <div class="input-group-wrap" ref="input-group-wrap" @click="toggleSuggestions">
                 <input class="input-search" type="search" spellcheck="false" placeholder="Search something"
-                       value="" tabindex="0" maxlength="200" v-model="textInput" >
+                       value="" tabindex="0" maxlength="200" v-model="textInput">
 
                 <!-- Suggestions -->
                 <suggestions :filteredSuggestionsUsers="filteredSuggestionsUsers"
                               :filteredSuggestionsBooks="filteredSuggestionsBooks"
                              :errorMessages="errorMessages"
+                             v-show="getShowSuggestions"
                              />
               </div>
 
@@ -127,7 +128,7 @@ const CategoryEnum = Object.freeze({
 
 export default {
   name: 'Navbar',
-  components: { 'suggestions': Suggestions },
+  components: {'suggestions': Suggestions},
   props: {
     actualPage: PageEnum
   },
@@ -172,9 +173,15 @@ export default {
   computed: {
     username () {
       return this.$store.getters.username
+    },
+    getShowSuggestions () {
+      return this.showSuggestions
     }
   },
   methods: {
+    toggleSuggestions () {
+      this.showSuggestions = true
+    },
     setPageHome () {
       if (this.actualPage !== PageEnum.HOME) {
         this.filteredSuggestionsUsers = []
@@ -212,15 +219,15 @@ export default {
       if (this.textInput.trim()) {
         if (this.$route.query.search &&
           this.$route.query.type &&
-            this.textInput === this.$route.query.search &&
-            this.$route.query.type === this.type) {
+          this.textInput === this.$route.query.search &&
+          this.$route.query.type === this.type) {
           this.filteredSuggestionsUsers = []
           this.filteredSuggestionsBooks = []
           return
         }
 
         if (this.hasSpecialCharacters(this.textInput.trim())) {
-          this.errorMessages.push({ name: 'No special characters allowed', type: 'error' })
+          this.errorMessages.push({name: 'No special characters allowed', type: 'error'})
           this.filteredSuggestionsUsers = []
           this.filteredSuggestionsBooks = []
           return
@@ -256,7 +263,7 @@ export default {
         ])
           .then(() => {
             if (!this.filteredSuggestionsUsers.length && !this.filteredSuggestionsBooks.length) {
-              this.errorMessages.push({ name: 'No match found', type: 'error' })
+              this.errorMessages.push({name: 'No match found', type: 'error'})
             }
           })
       } else {
@@ -285,7 +292,19 @@ export default {
     hasSpecialCharacters (input) {
       const specialCharactersRegex = /^[a-zA-ZñÑáéíóúÁÉÍÓÚüçÜ0-9]+( +[a-zA-ZñÑáéíóúÁÉÍÓÚüçÜ0-9]+)*$/
       return !specialCharactersRegex.test(input)
+    },
+    closeSuggestions (event) {
+      const group = this.$refs['input-group-wrap']
+      if (group && !group.contains(event.target)) {
+        this.showSuggestions = false
+      }
     }
+  },
+  mounted () {
+    document.addEventListener('click', this.closeSuggestions)
+  },
+  beforeDestroy () {
+    document.removeEventListener('click', this.closeSuggestions)
   }
 }
 </script>
@@ -433,10 +452,6 @@ export default {
 
 .input-search:focus {
   border: 0.125rem solid var(--text-color);
-}
-
-.input-group-wrap:focus-within .suggestions {
-  display: block;
 }
 
 .search:hover {

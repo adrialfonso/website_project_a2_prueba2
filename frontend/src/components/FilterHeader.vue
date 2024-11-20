@@ -19,7 +19,8 @@
           <div class="content-selected">
               <div v-for="genre in getGenreViewButtons" :key="genre">
               <button id="genre" class="genres-buttons">
-                <span class="genre-icon-content" v-html="getIconByGenre(genre,'#282828', '#FFFFFF')"/>
+                <span class="genre-icon-content" v-html="getIconByGenre(genre,'#FFFFFF', '#282828')"/>
+                <span style="white-space: nowrap"> {{genre}} </span>
                 <span class="line"></span>
                 <span class="close-icon" @click="deactivateGenre(genre)">
                   <svg width="16" height="16" viewBox="0 0 70 77" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -34,7 +35,8 @@
           <div class="dropdown" v-show="filterBooks" ref="dropdown">
             <button class="filter-btn" @click="toggleDropdown">Genre</button>
             <div class="dropdown-content" v-show="getDropdownOpen && getGenresList.length > 0">
-              <div class="option-dropdown" role="option" v-for="genreItem in getGenresList" :key="genreItem" @click="applyFilterGenre(genreItem)">
+              <div class="option-dropdown" role="option" v-for="genreItem in getGenresList" :key="genreItem"
+                   @click="applyFilterGenre(genreItem)" :class="{'unselected': !getGenreListItem(genreItem)}">
                 <span class="icon-content" v-html="getIconByGenre(genreItem,'#282828', '#FFFFFF')"/>
                 <span class="text-dropdown">
                   {{ genreItem }}
@@ -99,17 +101,16 @@ export default {
       filterBooks: false,
       filterUsers: false,
       filters: ['filterAll'],
-      genresList: [
-        'Fiction',
-        'Classic',
-        'Romance',
-        'Adventure',
-        'Fantasy',
-        'Horror',
-        'Epic',
-        'Science Fiction'
-      ],
-      genreViewButtons: [],
+      genresList: {
+        'Fiction': true,
+        'Classic': true,
+        'Romance': true,
+        'Adventure': true,
+        'Fantasy': true,
+        'Horror': true,
+        'Epic': true,
+        'Science Fiction': true
+      },
       dropdownOpen: false
 
     }
@@ -122,10 +123,10 @@ export default {
       return this.$store.getters.username
     },
     getGenreViewButtons () {
-      return this.genreViewButtons
+      return Object.keys(this.genresList).filter(key => !this.genresList[key])
     },
     getGenresList () {
-      return this.genresList
+      return Object.keys(this.genresList)
     },
     getDropdownOpen () {
       return this.dropdownOpen
@@ -171,35 +172,22 @@ export default {
       this.filterUsers = false
 
       this.filters = ['filterAll']
-      this.genreViewButtons = []
-      this.genresList = [
-        'Fiction',
-        'Classic',
-        'Romance',
-        'Adventure',
-        'Fantasy',
-        'Horror',
-        'Epic',
-        'Science Fiction']
+      Object.keys(this.genresList).forEach((genre) => {
+        this.genresList[genre] = true
+      })
+      this.$emit('genres-updated', [...this.getGenreViewButtons])
       this.$emit('filter-changed', {filters: this.filters})
     },
     applyFilterGenre (genre) {
-      if (!this.genreViewButtons.includes(genre)) {
-        this.genreViewButtons.push(genre)
-        this.$emit('genres-updated', [...this.genreViewButtons])
-      }
-      this.genresList = this.genresList.filter(item => item !== genre)
+      this.genresList[genre] = !this.genresList[genre]
+      this.$emit('genres-updated', [...this.getGenreViewButtons])
     },
 
     deactivateGenre (genre) {
-      if (this.genreViewButtons.includes(genre)) {
-        this.genreViewButtons = this.genreViewButtons.filter(item => item !== genre)
+      if (!this.genresList[genre]) {
+        this.genresList[genre] = true
+        this.$emit('genres-updated', [...this.getGenreViewButtons])
       }
-
-      if (!this.genresList.includes(genre)) {
-        this.genresList.push(genre)
-      }
-      this.$emit('genres-updated', [...this.genreViewButtons])
     },
     getIconByGenre (genre, color1, color2) {
       if (genreIcons[genre]) {
@@ -217,6 +205,9 @@ export default {
       if (dropdown && !dropdown.contains(event.target)) {
         this.dropdownOpen = false
       }
+    },
+    getGenreListItem (genre) {
+      return this.genresList[genre]
     }
   },
   mounted () {
@@ -290,10 +281,18 @@ export default {
   height: auto;
   max-height: 20rem;
   width: 100%;
-  min-width: 15.5rem;
+  min-width: 13rem;
   margin-top: 0.5rem;
   padding: calc(var(--panel-gap)* 2);
   padding-inline: calc(var(--panel-gap)* 2);
+}
+
+.unselected{
+  background: var(--half-transparent-background-purple);
+}
+
+.unselected:hover{
+  background: var(--half-transparent-background-purple) !important;
 }
 
 .option-dropdown{
